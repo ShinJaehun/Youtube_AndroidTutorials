@@ -2,7 +2,6 @@ package com.shinjaehun.imagefilterapp.activities.editimage
 
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -23,7 +22,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class EditImageActivity : AppCompatActivity(), ImageFilterListener {
 
     companion object {
-        const val KEY_FILTERED_IMAGE_UI = "filteredImageUri"
+        const val KEY_FILTERED_IMAGE_URI = "filteredImageUri"
     }
 
     private lateinit var binding: ActivityEditImageBinding
@@ -113,7 +112,7 @@ class EditImageActivity : AppCompatActivity(), ImageFilterListener {
             }
             savedFilteredImageDataState.uri?.let { savedImageUri ->
                 Intent(applicationContext, FilteredImageActivity::class.java).also { filteredImageIntent ->
-                    filteredImageIntent.putExtra(KEY_FILTERED_IMAGE_UI, savedImageUri)
+                    filteredImageIntent.putExtra(KEY_FILTERED_IMAGE_URI, savedImageUri)
                     startActivity(filteredImageIntent)
                 }
             } ?: kotlin.run {

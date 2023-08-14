@@ -13,6 +13,9 @@
         android:theme="@style/Theme.ImageFilterApp"
         tools:targetApi="31">
         <activity
+            android:name=".activities.savedImages.SavedImagesActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.filteredimage.FilteredImageActivity"
             android:exported="false" />
         <activity

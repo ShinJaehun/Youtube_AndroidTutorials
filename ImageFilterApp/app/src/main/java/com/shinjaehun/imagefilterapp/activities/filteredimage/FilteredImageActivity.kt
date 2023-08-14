@@ -4,7 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.shinjaehun.imagefilterapp.R
 import com.shinjaehun.imagefilterapp.activities.editimage.EditImageActivity
 import com.shinjaehun.imagefilterapp.databinding.ActivityFilteredImageBinding
 
@@ -22,7 +21,7 @@ class FilteredImageActivity : AppCompatActivity() {
     }
 
     private fun displayFilteredImage() {
-        intent.getParcelableExtra<Uri>(EditImageActivity.KEY_FILTERED_IMAGE_UI)?.let { imageUri ->
+        intent.getParcelableExtra<Uri>(EditImageActivity.KEY_FILTERED_IMAGE_URI)?.let { imageUri ->
             fileUri = imageUri
             binding.ivFilteredImage.setImageURI(imageUri)
         }
@@ -36,6 +35,10 @@ class FilteredImageActivity : AppCompatActivity() {
                 type = "image/*"
                 startActivity(this)
             }
+        }
+
+        binding.ivBack.setOnClickListener {
+            onBackPressed()
         }
     }
 }

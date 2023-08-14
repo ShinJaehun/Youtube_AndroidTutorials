@@ -18,7 +18,7 @@
         android:background="@drawable/landing_background" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnSavedImages"
+        android:id="@+id/btnViewSavedImages"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_45sdp"
         android:layout_marginStart="@dimen/_12sdp"
@@ -47,7 +47,7 @@
         android:textSize="@dimen/_12sdp"
         app:backgroundTint="@color/buttonEditNewImage"
         app:cornerRadius="@dimen/_20sdp"
-        app:layout_constraintBottom_toTopOf="@id/btnSavedImages"/>
+        app:layout_constraintBottom_toTopOf="@id/btnViewSavedImages"/>
 
     <TextView
         android:id="@+id/tvSubtitle"
