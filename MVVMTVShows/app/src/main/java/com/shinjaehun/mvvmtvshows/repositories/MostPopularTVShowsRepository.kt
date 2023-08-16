@@ -8,12 +8,6 @@ import retrofit2.Response
 
 class MostPopularTVShowsRepository {
 
-//    private lateinit var apiService: ApiService
-//
-//    init {
-//        apiService = ApiClient.
-//    }
-
     suspend fun getMostPopularTVShows(page: Int) : Response<TVShowsResponse> =
         ApiClient.api.getMostPopularTVShows(page)
 }

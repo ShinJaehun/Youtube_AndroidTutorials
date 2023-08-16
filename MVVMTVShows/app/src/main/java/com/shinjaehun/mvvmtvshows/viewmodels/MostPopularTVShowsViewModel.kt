@@ -27,7 +27,6 @@ class MostPopularTVShowsViewModel(
     fun getMostPopularTVShows(page: Int) = viewModelScope.launch {
         safeMostPopularTVShowCall(page)
     }
-
     private suspend fun safeMostPopularTVShowCall(page: Int) {
         try {
             if (hasInternetConnection()) {
@@ -41,7 +40,6 @@ class MostPopularTVShowsViewModel(
             Log.i(TAG, e.message.toString())
         }
     }
-
     private fun handleMostPopularTVShowsResponse(response: Response<TVShowsResponse>): Resource<TVShowsResponse>? {
         if (response.isSuccessful) {
             response.body()?.let { resultResponse ->
@@ -54,6 +52,7 @@ class MostPopularTVShowsViewModel(
         return Resource.Error(response.message())
     }
 
+    // 원래는 이렇게 긴데...
 //    private fun hasInternetConnection(): Boolean {
 //        val connectivityManager = getApplication<MVVMTVShowsApplication>().getSystemService(
 //            Context.CONNECTIVITY_SERVICE
@@ -79,7 +78,6 @@ class MostPopularTVShowsViewModel(
 //        }
 //        return false
 //    }
-
     private fun hasInternetConnection(): Boolean {
         // 자동으로 뭔가 이렇게 줄여놨음!!
         val connectivityManager = getApplication<MVVMTVShowsApplication>().getSystemService(
