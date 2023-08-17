@@ -6,6 +6,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities.*
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.shinjaehun.mvvmtvshows.MVVMTVShowsApplication
@@ -21,36 +22,71 @@ class MostPopularTVShowsViewModel(
     private val mostPopularTVShowsRepository: MostPopularTVShowsRepository
 ) : AndroidViewModel(app) {
 
-    val mostPopularTVShows: MutableLiveData<Resource<TVShowsResponse>> = MutableLiveData()
-    private var tvShowsResponse: TVShowsResponse? = null
+//    val mostPopularTVShows: MutableLiveData<Resource<TVShowsResponse>> = MutableLiveData()
+//    var page = 0
+//    private var tvShowsResponse: TVShowsResponse? = null
+
+//    fun getMostPopularTVShows(page: Int) = viewModelScope.launch {
+//        safeMostPopularTVShowCall(page)
+//    }
+    var mostPopularTVShows: LiveData<TVShowsResponse> = MutableLiveData()
+
+//    fun getMostPopularTVShows(page: Int) : LiveData<TVShowsResponse> {
+////        safeMostPopularTVShowCall()
+//        return mostPopularTVShowsRepository.getMostPopularTVShowsRepo(page)
+//    }
 
     fun getMostPopularTVShows(page: Int) = viewModelScope.launch {
-        safeMostPopularTVShowCall(page)
+//        safeMostPopularTVShowCall()
+        mostPopularTVShows = mostPopularTVShowsRepository.getMostPopularTVShowsRepo(page)
     }
-    private suspend fun safeMostPopularTVShowCall(page: Int) {
-        try {
-            if (hasInternetConnection()) {
-                val response = mostPopularTVShowsRepository.getMostPopularTVShows(page)
-                Log.i(TAG, "$response")
-                mostPopularTVShows.postValue(handleMostPopularTVShowsResponse(response))
-            } else {
-                mostPopularTVShows.postValue(Resource.Error("No internet connection"))
-            }
-        } catch (e: Exception) {
-            Log.i(TAG, e.message.toString())
-        }
-    }
-    private fun handleMostPopularTVShowsResponse(response: Response<TVShowsResponse>): Resource<TVShowsResponse>? {
-        if (response.isSuccessful) {
-            response.body()?.let { resultResponse ->
-                if (tvShowsResponse == null) {
-                    tvShowsResponse = resultResponse
-                }
-                return Resource.Success(tvShowsResponse ?: resultResponse)
-            }
-        }
-        return Resource.Error(response.message())
-    }
+
+
+//    private suspend fun safeMostPopularTVShowCall(page: Int) {
+//        try {
+//            if (hasInternetConnection()) {
+//                val response = mostPopularTVShowsRepository.getMostPopularTVShows(page)
+//                Log.i(TAG, "$response")
+//                mostPopularTVShows.postValue(handleMostPopularTVShowsResponse(response))
+//            } else {
+//                mostPopularTVShows.postValue(Resource.Error("No internet connection"))
+//            }
+//        } catch (e: Exception) {
+//            Log.i(TAG, e.message.toString())
+//        }
+//    }
+
+//    private suspend fun safeMostPopularTVShowCall() {
+//        try {
+//            if (hasInternetConnection()) {
+//                page++
+//                Log.i(TAG, "current page : $page")
+//
+//                val response = mostPopularTVShowsRepository.getMostPopularTVShows(page)
+//
+//                Log.i(TAG, "$response")
+//                mostPopularTVShows.postValue(handleMostPopularTVShowsResponse(response))
+//            } else {
+//                mostPopularTVShows.postValue(Resource.Error("No internet connection"))
+//            }
+//        } catch (e: Exception) {
+//            Log.i(TAG, e.message.toString())
+//        }
+//    }
+//
+//    private fun handleMostPopularTVShowsResponse(response: Response<TVShowsResponse>): Resource<TVShowsResponse>? {
+//        if (response.isSuccessful) {
+//            response.body()?.let { resultResponse ->
+//
+//
+//                if (tvShowsResponse == null) {
+//                    tvShowsResponse = resultResponse
+//                }
+//                return Resource.Success(tvShowsResponse ?: resultResponse)
+//            }
+//        }
+//        return Resource.Error(response.message())
+//    }
 
     // 원래는 이렇게 긴데...
 //    private fun hasInternetConnection(): Boolean {
