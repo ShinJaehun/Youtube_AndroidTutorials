@@ -16,7 +16,7 @@ class MostPopularTVShowsRepository {
     //    suspend fun getMostPopularTVShows(page: Int) : Response<TVShowsResponse> =
 //        ApiClient.api.getMostPopularTVShows(page)
 
-    fun getMostPopularTVShowsRepo(page: Int): LiveData<TVShowsResponse> {
+    fun getMostPopularTVShows(page: Int): LiveData<TVShowsResponse> {
         val data : MutableLiveData<TVShowsResponse> = MutableLiveData()
         apiService.getMostPopularTVShows(page).enqueue(object: Callback<TVShowsResponse>{
             override fun onResponse(

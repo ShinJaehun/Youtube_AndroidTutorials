@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities.*
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -13,11 +12,9 @@ import androidx.lifecycle.viewModelScope
 import com.shinjaehun.mvvmtvshows.MVVMTVShowsApplication
 import com.shinjaehun.mvvmtvshows.repositories.MostPopularTVShowsRepository
 import com.shinjaehun.mvvmtvshows.responses.TVShowsResponse
-import com.shinjaehun.mvvmtvshows.util.Resource
 import kotlinx.coroutines.launch
-import retrofit2.Response
 
-const val TAG = "ViewModel"
+private const val TAG = "MostPopularTVShowsViewModel"
 class MostPopularTVShowsViewModel(
     app: Application,
     private val mostPopularTVShowsRepository: MostPopularTVShowsRepository
@@ -28,7 +25,7 @@ class MostPopularTVShowsViewModel(
     fun getMostPopularTVShows(page: Int) =
         viewModelScope.launch {
             if (hasInternetConnection()) {
-                mostPopularTVShows = mostPopularTVShowsRepository.getMostPopularTVShowsRepo(page)
+                mostPopularTVShows = mostPopularTVShowsRepository.getMostPopularTVShows(page)
             } else {
                 Toast.makeText(getApplication(), "No internet connection", Toast.LENGTH_SHORT).show()
                 // 근데 이렇게 하니까 인터넷을 다시 활성화시킨 다음에 다시 시도해도... 걍 원래 상태 그대로임...

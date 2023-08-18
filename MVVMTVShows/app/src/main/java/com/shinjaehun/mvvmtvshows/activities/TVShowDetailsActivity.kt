@@ -1,34 +1,45 @@
 package com.shinjaehun.mvvmtvshows.activities
 
+import android.content.Intent
+import android.net.Uri
+import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.shinjaehun.mvvmtvshows.R
 import com.shinjaehun.mvvmtvshows.adapters.ImageSliderAdapter
-import com.shinjaehun.mvvmtvshows.databinding.ActivityTvshowDetailsBinding
+import com.shinjaehun.mvvmtvshows.databinding.ActivityTvShowDetailsBinding
 import com.shinjaehun.mvvmtvshows.repositories.TVShowDetailsRepository
 import com.shinjaehun.mvvmtvshows.viewmodels.TVShowDetailsViewModel
 import com.shinjaehun.mvvmtvshows.viewmodels.TVShowDetailsViewModelFactory
+import com.squareup.picasso.Callback
+import com.squareup.picasso.Picasso
+import java.lang.Exception
+import java.util.*
+
+private const val TAG = "TVShowDetailsActivity"
 
 class TVShowDetailsActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityTvshowDetailsBinding
-    private lateinit var viewModel: TVShowDetailsViewModel
+    private lateinit var activityTvShowDetailsBinding: ActivityTvShowDetailsBinding
+    private lateinit var tvShowDetailsViewModel: TVShowDetailsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityTvshowDetailsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        activityTvShowDetailsBinding = ActivityTvShowDetailsBinding.inflate(layoutInflater)
+        setContentView(activityTvShowDetailsBinding.root)
 
         doInitialization()
         getTVShowDetails()
@@ -37,33 +48,122 @@ class TVShowDetailsActivity : AppCompatActivity() {
     private fun doInitialization() {
         val repository = TVShowDetailsRepository()
         val viewModelProviderFactory = TVShowDetailsViewModelFactory(application, repository)
-        viewModel = ViewModelProvider(this, viewModelProviderFactory).get(TVShowDetailsViewModel::class.java)
+        tvShowDetailsViewModel = ViewModelProvider(this, viewModelProviderFactory).get(TVShowDetailsViewModel::class.java)
+
+        activityTvShowDetailsBinding.imageBack.setOnClickListener {
+            onBackPressed()
+        }
     }
 
     private fun getTVShowDetails() {
-        binding.isLoading = true
+        activityTvShowDetailsBinding.isLoading = true
 
         val tvShowId = intent.getIntExtra("id", -1).toString()
-        viewModel.getTVShowDetails(tvShowId)
 
-        viewModel.tvShowDetails.observe(this, Observer { response ->
-            binding.isLoading = false
-//            Toast.makeText(applicationContext, response.tvShow.url, Toast.LENGTH_SHORT).show()
+        tvShowDetailsViewModel.getTVShowDetails(tvShowId)
+        tvShowDetailsViewModel.tvShowDetails.observe(this, Observer { response ->
+            activityTvShowDetailsBinding.isLoading = false
 
             if (response != null) {
-                loadImageSlider(response.tvShow.pictures)
-            }
+                Log.i(TAG, "response: ${response}")
 
+                loadImageSlider(response.tvShow.pictures)
+
+                // 이거 자체가 오류 발생!! BindingAdapters의 setImageURL()이 null
+//                activityTvShowDetailsBinding.imageTvShow.visibility = View.VISIBLE
+//                activityTvShowDetailsBinding.tvShowImageURL = response.tvShow.image_path
+
+                // 그래서 imaveTVShow는 걍 여기서 직접 보여주기로
+                activityTvShowDetailsBinding.imageTvShow.alpha = 0f
+                Picasso.get()
+                    .load(response.tvShow.image_path)
+                    .noFade()
+                    .into(activityTvShowDetailsBinding.imageTvShow, object : Callback{
+                        override fun onSuccess() {
+                            activityTvShowDetailsBinding.imageTvShow.animate().setDuration(300).alpha(1f).start()
+                        }
+
+                        override fun onError(e: Exception?) {
+
+                        }
+                    })
+
+                activityTvShowDetailsBinding.description =
+                    HtmlCompat.fromHtml(response.tvShow.description, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
+                activityTvShowDetailsBinding.textDescription.visibility = View.VISIBLE
+                activityTvShowDetailsBinding.textReadMore.visibility = View.VISIBLE
+                activityTvShowDetailsBinding.textReadMore.setOnClickListener {
+                    if (activityTvShowDetailsBinding.textReadMore.text.toString().equals("Read More")) {
+                        activityTvShowDetailsBinding.textDescription.maxLines = Integer.MAX_VALUE
+                        activityTvShowDetailsBinding.textDescription.ellipsize = null
+                        activityTvShowDetailsBinding.textReadMore.text = "Read Less"
+                    } else {
+                        activityTvShowDetailsBinding.textDescription.maxLines = 4
+                        activityTvShowDetailsBinding.textDescription.ellipsize = TextUtils.TruncateAt.END
+                        activityTvShowDetailsBinding.textReadMore.text = "Read More"
+
+                    }
+                }
+
+                activityTvShowDetailsBinding.rating =
+                    String.format(
+                        Locale.getDefault(),
+                        "%.2f",
+                        response.tvShow.rating.toDouble()
+                    )
+                if (response.tvShow.genres != null) {
+                    activityTvShowDetailsBinding.genre =
+                        response.tvShow.genres[0] // 하나만 보여주는 거야???
+                } else {
+                    activityTvShowDetailsBinding.genre = "N/A"
+                }
+
+                activityTvShowDetailsBinding.runtime = response.tvShow.runtime + "Min"
+                activityTvShowDetailsBinding.viewDivider1.visibility = View.VISIBLE
+                activityTvShowDetailsBinding.layoutMisc.visibility = View.VISIBLE
+                activityTvShowDetailsBinding.icStar.visibility = View.VISIBLE
+                activityTvShowDetailsBinding.icDot1.visibility = View.VISIBLE
+                activityTvShowDetailsBinding.icDot2.visibility = View.VISIBLE
+                activityTvShowDetailsBinding.viewDivider2.visibility = View.VISIBLE
+
+                activityTvShowDetailsBinding.buttonWebsite.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.data = Uri.parse(response.tvShow.url)
+                    startActivity(intent)
+                }
+                activityTvShowDetailsBinding.buttonWebsite.visibility = View.VISIBLE
+
+
+                activityTvShowDetailsBinding.buttonEpisodes.visibility = View.VISIBLE
+
+                loadBasicTVShowDetails()
+
+            }
         })
     }
 
+    private fun loadBasicTVShowDetails() {
+        activityTvShowDetailsBinding.tvShowName = intent.getStringExtra("name").toString()
+        activityTvShowDetailsBinding.networkCountry =
+            intent.getStringExtra("network").toString() + " (" +
+                    intent.getStringExtra("country").toString() + ")"
+        activityTvShowDetailsBinding.status = intent.getStringExtra("status").toString()
+        activityTvShowDetailsBinding.startedDate = intent.getStringExtra("startDate").toString()
+
+        activityTvShowDetailsBinding.textName.visibility = View.VISIBLE
+        activityTvShowDetailsBinding.textNetworkCountry.visibility = View.VISIBLE
+        activityTvShowDetailsBinding.textStatus.visibility = View.VISIBLE
+        activityTvShowDetailsBinding.textStartedDate.visibility = View.VISIBLE
+
+    }
+
     private fun loadImageSlider(sliderImages : List<String>) {
-        binding.sliderViewPager.offscreenPageLimit = 1
-        binding.sliderViewPager.adapter = ImageSliderAdapter(sliderImages, layoutInflater)
-        binding.sliderViewPager.visibility = View.VISIBLE
-        binding.viewFadingEdge.visibility = View.VISIBLE
+        activityTvShowDetailsBinding.sliderViewPager.offscreenPageLimit = 1
+        activityTvShowDetailsBinding.sliderViewPager.adapter = ImageSliderAdapter(sliderImages, layoutInflater)
+        activityTvShowDetailsBinding.sliderViewPager.visibility = View.VISIBLE
+        activityTvShowDetailsBinding.viewFadingEdge.visibility = View.VISIBLE
         setupSliderIndicators(sliderImages.size)
-        binding.sliderViewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
+        activityTvShowDetailsBinding.sliderViewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 setCurrentSliderIndicator(position)
@@ -72,9 +172,9 @@ class TVShowDetailsActivity : AppCompatActivity() {
     }
 
     private fun setCurrentSliderIndicator(position: Int) {
-        val childCount = binding.layoutSliderIndicators.childCount
+        val childCount = activityTvShowDetailsBinding.layoutSliderIndicators.childCount
         for (i: Int in 0 until childCount) {
-            val imageView: ImageView = binding.layoutSliderIndicators.getChildAt(i) as ImageView
+            val imageView: ImageView = activityTvShowDetailsBinding.layoutSliderIndicators.getChildAt(i) as ImageView
             if (i == position) {
                 imageView.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.background_slider_indicator_active))
             } else {
@@ -105,8 +205,8 @@ class TVShowDetailsActivity : AppCompatActivity() {
                 R.drawable.background_slider_indicator_inactive
             ))
             indicators[i]?.layoutParams = layoutParams
-            binding.layoutSliderIndicators.addView(indicators[i])
+            activityTvShowDetailsBinding.layoutSliderIndicators.addView(indicators[i])
         }
-        binding.layoutSliderIndicators.visibility = View.VISIBLE
+        activityTvShowDetailsBinding.layoutSliderIndicators.visibility = View.VISIBLE
     }
 }

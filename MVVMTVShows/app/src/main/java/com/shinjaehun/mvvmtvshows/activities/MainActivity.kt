@@ -4,9 +4,11 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
+import com.shinjaehun.mvvmtvshows.R
 import com.shinjaehun.mvvmtvshows.adapters.TVShowsAdapter
 import com.shinjaehun.mvvmtvshows.databinding.ActivityMainBinding
 import com.shinjaehun.mvvmtvshows.listeners.TVShowsListener
@@ -15,8 +17,8 @@ import com.shinjaehun.mvvmtvshows.repositories.MostPopularTVShowsRepository
 import com.shinjaehun.mvvmtvshows.viewmodels.MostPopularTVShowsViewModel
 import com.shinjaehun.mvvmtvshows.viewmodels.MostPopularTVShowsViewModelFactory
 
+private const val TAG = "MainActivity"
 
-const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity(), TVShowsListener {
 
     private lateinit var binding: ActivityMainBinding
@@ -25,10 +27,13 @@ class MainActivity : AppCompatActivity(), TVShowsListener {
     private lateinit var adapter: TVShowsAdapter
     private var currentPage = 1
     private var totalAvailablePages = 1
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+//        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         doInitialization()
         getMostPopularTVShows()
@@ -101,21 +106,21 @@ class MainActivity : AppCompatActivity(), TVShowsListener {
         viewModel.mostPopularTVShows.observe(this, Observer { response ->
 
             toggleLoading()
-            Log.i(TAG, "$response")
+//            Log.i(TAG, "$response")
             if (response != null) {
                 totalAvailablePages = response.pages
-                Log.i(TAG, "total available pages : $totalAvailablePages")
-                Log.i(TAG, "current page : ${response.page}")
+//                Log.i(TAG, "total available pages : $totalAvailablePages")
+//                Log.i(TAG, "current page : ${response.page}")
 
                 val oldCount = tvShows.size
                 tvShows.addAll(response.tv_shows)
 
-                Log.i(TAG, "position start: $oldCount")
-                Log.i(TAG, "itemCount: ${this.tvShows.size}")
+//                Log.i(TAG, "position start: $oldCount")
+//                Log.i(TAG, "itemCount: ${this.tvShows.size}")
 
-                for (tvShow in tvShows) {
-                    Log.i(TAG, "${tvShow.id}: ${tvShow.name}")
-                }
+//                for (tvShow in tvShows) {
+//                    Log.i(TAG, "${tvShow.id}: ${tvShow.name}")
+//                }
 
                 adapter.notifyItemRangeInserted(oldCount, tvShows.size)
             }

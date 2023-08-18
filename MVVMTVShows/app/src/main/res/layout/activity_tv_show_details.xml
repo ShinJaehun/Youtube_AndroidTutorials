@@ -9,6 +9,38 @@
             name="isLoading"
             type="Boolean" />
 
+        <variable
+            name="tvShowName"
+            type="String" />
+
+        <variable
+            name="networkCountry"
+            type="String" />
+
+        <variable
+            name="status"
+            type="String" />
+
+        <variable
+            name="startedDate"
+            type="String" />
+
+        <variable
+            name="rating"
+            type="String" />
+
+        <variable
+            name="description"
+            type="String" />
+
+        <variable
+            name="genre"
+            type="String" />
+
+        <variable
+            name="runtime"
+            type="String" />
+
         <import type="android.view.View" />
     </data>
 
@@ -67,7 +99,6 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:tint="@color/colorTextIcons" />
 
-
                 <com.makeramen.roundedimageview.RoundedImageView
                     android:id="@+id/imageTvShow"
                     android:layout_width="@dimen/_100sdp"
@@ -89,6 +120,7 @@
                     android:fontFamily="@font/ubuntu_bold"
                     android:includeFontPadding="false"
                     android:maxLines="1"
+                    android:text="@{tvShowName}"
                     android:textColor="@color/colorTextIcons"
                     android:textSize="@dimen/_14ssp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -104,6 +136,7 @@
                     android:fontFamily="@font/ubuntu"
                     android:includeFontPadding="false"
                     android:maxLines="1"
+                    android:text="@{networkCountry}"
                     android:textColor="@color/colorTextOther"
                     android:textSize="@dimen/_12ssp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -117,6 +150,7 @@
                     android:layout_marginTop="@dimen/_4sdp"
                     android:fontFamily="@font/ubuntu"
                     android:includeFontPadding="false"
+                    android:text="@{status}"
                     android:textColor="@android:color/holo_green_light"
                     android:textSize="@dimen/_10ssp"
                     app:layout_constraintEnd_toEndOf="@id/textName"
@@ -130,6 +164,7 @@
                     android:layout_marginTop="@dimen/_4sdp"
                     android:fontFamily="@font/ubuntu"
                     android:includeFontPadding="false"
+                    android:text='@{"Started on: " + startedDate}'
                     android:textColor="@color/colorTextSecondary"
                     android:textSize="@dimen/_10ssp"
                     android:visibility="gone"
@@ -149,12 +184,13 @@
                     android:fontFamily="@font/ubuntu"
                     android:includeFontPadding="false"
                     android:maxLines="4"
+                    android:text="@{description}"
                     android:textColor="@color/colorTextIcons"
                     android:textSize="@dimen/_11ssp"
+                    android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/imageTvShow" />
-
 
                 <TextView
                     android:id="@+id/textReadMore"
@@ -207,7 +243,6 @@
                         app:tint="@color/colorTextOther"
                         android:visibility="gone"/>
 
-
                     <TextView
                         android:id="@+id/textRating"
                         android:layout_width="wrap_content"
@@ -215,6 +250,7 @@
                         android:layout_marginStart="@dimen/_5sdp"
                         android:fontFamily="@font/ubuntu"
                         android:includeFontPadding="false"
+                        android:text="@{rating}"
                         android:textColor="@color/colorTextOther"
                         android:textSize="@dimen/_12ssp" />
 
@@ -238,9 +274,11 @@
                         android:layout_marginStart="@dimen/_8sdp"
                         android:fontFamily="@font/ubuntu"
                         android:includeFontPadding="false"
+                        android:text="@{genre}"
                         android:textColor="@color/colorTextIcons"
                         android:textSize="@dimen/_12ssp"
                         />
+
                     <TextView
                         android:id="@+id/ic_dot2"
                         android:layout_width="wrap_content"
@@ -260,10 +298,12 @@
                         android:layout_marginStart="@dimen/_8sdp"
                         android:fontFamily="@font/ubuntu"
                         android:includeFontPadding="false"
+                        android:text="@{runtime}"
                         android:textColor="@color/colorTextIcons"
                         android:textSize="@dimen/_12ssp"
                         />
                 </LinearLayout>
+
                 <View
                     android:id="@+id/viewDivider2"
                     android:layout_width="match_parent"

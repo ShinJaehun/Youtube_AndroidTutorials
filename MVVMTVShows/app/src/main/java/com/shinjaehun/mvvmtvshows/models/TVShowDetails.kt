@@ -1,6 +1,6 @@
 package com.shinjaehun.mvvmtvshows.models
 
-data class TVShowDetails(
+data class TVShowDetails (
     val url: String,
     val description: String,
     val runtime: String,

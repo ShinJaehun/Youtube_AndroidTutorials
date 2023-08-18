@@ -1,5 +1,6 @@
 package com.shinjaehun.mvvmtvshows.util
 
+import android.content.Context
 import android.util.Log
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
@@ -7,7 +8,7 @@ import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import java.lang.Exception
 
-const val TAG = "BindingAdapters"
+private const val TAG = "BindingAdapter"
 
 // 이렇게 하면 오류 발생... 내가 DataBinding에 대해서 잘 몰라서 그러는거지???
 // BindingAdapter 사용할 때 오류.
@@ -36,6 +37,7 @@ const val TAG = "BindingAdapters"
 @BindingAdapter("android:imageURL")
 fun setImageURL(imageView: ImageView, URL: String) {
     try {
+//        Log.i(TAG, "URL: $URL")
         imageView.alpha = 0f
         Picasso.get().load(URL).noFade().into(imageView, object: Callback {
             // Picasso Callback() 구현
