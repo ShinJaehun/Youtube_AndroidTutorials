@@ -1,26 +1,19 @@
 package com.shinjaehun.mvvmtvshows.activities
 
-import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
-import android.widget.AbsListView
-import android.widget.Toast
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.OnScrollListener
-import com.shinjaehun.mvvmtvshows.R
 import com.shinjaehun.mvvmtvshows.adapters.TVShowsAdapter
 import com.shinjaehun.mvvmtvshows.databinding.ActivityMainBinding
 import com.shinjaehun.mvvmtvshows.listeners.TVShowsListener
 import com.shinjaehun.mvvmtvshows.models.TVShow
 import com.shinjaehun.mvvmtvshows.repositories.MostPopularTVShowsRepository
-import com.shinjaehun.mvvmtvshows.util.Resource
 import com.shinjaehun.mvvmtvshows.viewmodels.MostPopularTVShowsViewModel
-import com.shinjaehun.mvvmtvshows.viewmodels.TVShowsViewModelFactory
+import com.shinjaehun.mvvmtvshows.viewmodels.MostPopularTVShowsViewModelFactory
 
 
 const val TAG = "MainActivity"
@@ -36,9 +29,6 @@ class MainActivity : AppCompatActivity(), TVShowsListener {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        // 원본은 이건데... 걍 상관 없음
-//        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-
 
         doInitialization()
         getMostPopularTVShows()
@@ -47,15 +37,10 @@ class MainActivity : AppCompatActivity(), TVShowsListener {
     private fun doInitialization() {
         binding.tvShowsRecyclerView.setHasFixedSize(true) // 이거 왜 하는지 모르겠음...
         val repository = MostPopularTVShowsRepository()
-        val viewModelProviderFactory = TVShowsViewModelFactory(application, repository)
+        val viewModelProviderFactory = MostPopularTVShowsViewModelFactory(application, repository)
         viewModel = ViewModelProvider(this, viewModelProviderFactory).get(MostPopularTVShowsViewModel::class.java)
 
-        // JAVA에서는 걍 이것만 해도 되던데...
-        // 여기선 오류 발생: java.lang.RuntimeException: Unable to start activity ComponentInfo{com.shinjaehun.mvvmtvshows/com.shinjaehun.mvvmtvshows.activities.MainActivity}: java.lang.RuntimeException: Cannot create an instance of class com.shinjaehun.mvvmtvshows.viewmodels.MostPopularTVShowsViewModel
-        // viewModel = ViewModelProvider(this).get(MostPopularTVShowsViewModel::class.java)
 
-        // 이게 실패했던 이유는 무엇일까??
-//        adapter = TVShowsAdapter(tvShows, layoutInflater,this)
         adapter = TVShowsAdapter(tvShows, layoutInflater,this)
         binding.tvShowsRecyclerView.adapter = adapter
 
@@ -66,13 +51,13 @@ class MainActivity : AppCompatActivity(), TVShowsListener {
                 if (!binding.tvShowsRecyclerView.canScrollVertically(1)) {
                     if (currentPage <= totalAvailablePages) {
                         currentPage += 1
-                        getMostPopularTVShows()
+//                        getMostPopularTVShows()
                         // currentPage는 변하고 있는데 받아오는 것은 그대로... 뭐가 문제지???
 
-//                        binding.tvShowsRecyclerView.post {
-//                            getMostPopularTVShows()
-////                            adapter.notifyDataSetChanged()
-//                        }
+                        binding.tvShowsRecyclerView.post {
+                            getMostPopularTVShows()
+//                            adapter.notifyDataSetChanged()
+                        }
                     }
                 }
             }
@@ -122,19 +107,17 @@ class MainActivity : AppCompatActivity(), TVShowsListener {
                 Log.i(TAG, "total available pages : $totalAvailablePages")
                 Log.i(TAG, "current page : ${response.page}")
 
-                if (response.tv_shows != null) {
-                    val oldCount = tvShows.size
-                    tvShows.addAll(response.tv_shows)
+                val oldCount = tvShows.size
+                tvShows.addAll(response.tv_shows)
 
-                    Log.i(TAG, "position start: $oldCount")
-                    Log.i(TAG, "itemCount: ${this.tvShows.size}")
+                Log.i(TAG, "position start: $oldCount")
+                Log.i(TAG, "itemCount: ${this.tvShows.size}")
 
-                    for (tvShow in tvShows) {
-                        Log.i(TAG, "${tvShow.id}: ${tvShow.name}")
-                    }
-
-                    adapter.notifyItemRangeInserted(oldCount, tvShows.size)
+                for (tvShow in tvShows) {
+                    Log.i(TAG, "${tvShow.id}: ${tvShow.name}")
                 }
+
+                adapter.notifyItemRangeInserted(oldCount, tvShows.size)
             }
         })
 
@@ -189,14 +172,23 @@ class MainActivity : AppCompatActivity(), TVShowsListener {
 //        }
 
         if (currentPage == 1) {
-            binding.setIsLoading((binding.getIsLoading() == null) || !binding.getIsLoading()!!);
+            binding.isLoading = (binding.isLoading == null) || !binding.isLoading!!
         } else {
-            binding.setIsLoadingMore(binding.getIsLoadingMore() == null || !binding.getIsLoadingMore()!!);
+            binding.isLoadingMore = binding.isLoadingMore == null || !binding.isLoadingMore!!
         }
     }
 
 
     override fun onTVShowClick(tvShow: TVShow) {
-        Log.i(TAG, "clicked!")
+//        Log.i(TAG, "clicked!")
+        val intent = Intent(applicationContext, TVShowDetailsActivity::class.java)
+        intent.putExtra("id", tvShow.id)
+        intent.putExtra("name", tvShow.name)
+        intent.putExtra("startDate", tvShow.startDate)
+        intent.putExtra("country", tvShow.country)
+        intent.putExtra("network", tvShow.network)
+        intent.putExtra("status", tvShow.status)
+        startActivity(intent)
+
     }
 }

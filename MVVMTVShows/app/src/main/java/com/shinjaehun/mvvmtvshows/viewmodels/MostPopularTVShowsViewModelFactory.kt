@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.shinjaehun.mvvmtvshows.repositories.MostPopularTVShowsRepository
 
-class TVShowsViewModelFactory(
+class MostPopularTVShowsViewModelFactory(
     val app: Application,
     val repository: MostPopularTVShowsRepository
 ) : ViewModelProvider.Factory {

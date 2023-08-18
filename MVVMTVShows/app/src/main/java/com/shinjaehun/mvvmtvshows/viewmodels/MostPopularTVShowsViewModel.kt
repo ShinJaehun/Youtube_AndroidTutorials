@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities.*
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -22,25 +23,18 @@ class MostPopularTVShowsViewModel(
     private val mostPopularTVShowsRepository: MostPopularTVShowsRepository
 ) : AndroidViewModel(app) {
 
-//    val mostPopularTVShows: MutableLiveData<Resource<TVShowsResponse>> = MutableLiveData()
-//    var page = 0
-//    private var tvShowsResponse: TVShowsResponse? = null
-
-//    fun getMostPopularTVShows(page: Int) = viewModelScope.launch {
-//        safeMostPopularTVShowCall(page)
-//    }
     var mostPopularTVShows: LiveData<TVShowsResponse> = MutableLiveData()
 
-//    fun getMostPopularTVShows(page: Int) : LiveData<TVShowsResponse> {
-////        safeMostPopularTVShowCall()
-//        return mostPopularTVShowsRepository.getMostPopularTVShowsRepo(page)
-//    }
-
-    fun getMostPopularTVShows(page: Int) = viewModelScope.launch {
-//        safeMostPopularTVShowCall()
-        mostPopularTVShows = mostPopularTVShowsRepository.getMostPopularTVShowsRepo(page)
-    }
-
+    fun getMostPopularTVShows(page: Int) =
+        viewModelScope.launch {
+            if (hasInternetConnection()) {
+                mostPopularTVShows = mostPopularTVShowsRepository.getMostPopularTVShowsRepo(page)
+            } else {
+                Toast.makeText(getApplication(), "No internet connection", Toast.LENGTH_SHORT).show()
+                // 근데 이렇게 하니까 인터넷을 다시 활성화시킨 다음에 다시 시도해도... 걍 원래 상태 그대로임...
+                // 그니까 뭔가 다른 처리가 필요함!
+            }
+        }
 
 //    private suspend fun safeMostPopularTVShowCall(page: Int) {
 //        try {
