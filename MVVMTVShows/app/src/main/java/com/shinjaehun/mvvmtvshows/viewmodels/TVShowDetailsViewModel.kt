@@ -11,6 +11,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.shinjaehun.mvvmtvshows.MVVMTVShowsApplication
+import com.shinjaehun.mvvmtvshows.database.TVShowsDatabase
+import com.shinjaehun.mvvmtvshows.models.TVShow
 import com.shinjaehun.mvvmtvshows.repositories.TVShowDetailsRepository
 import com.shinjaehun.mvvmtvshows.responses.TVShowDetailsResponse
 import kotlinx.coroutines.launch
@@ -23,6 +25,13 @@ class TVShowDetailsViewModel(
 ) : AndroidViewModel(app) {
 
     var tvShowDetails: LiveData<TVShowDetailsResponse> = MutableLiveData()
+
+    private var tvShowsDatabase: TVShowsDatabase? = null
+
+    init {
+        tvShowsDatabase = TVShowsDatabase.getTVShowsDatabase(app)
+    }
+
     fun getTVShowDetails(tvShowId: String) = viewModelScope.launch {
         if (hasInternetConnection()) {
             tvShowDetails = tvShowDetailsRepository.getTVShowDetails(tvShowId)
@@ -50,4 +59,17 @@ class TVShowDetailsViewModel(
             else -> false
         }
     }
+
+    fun addWatchList(tvShow: TVShow) =
+        viewModelScope.launch {
+            tvShowsDatabase!!.tvShowDao().addToWatchList(tvShow)
+        }
+
+    fun getTVShowFromWatchList(tvShowId: String) = tvShowsDatabase!!.tvShowDao().getTVShowFromWatchList(tvShowId)
+
+    fun removeTVShowFromWatchList(tvShow: TVShow) =
+        viewModelScope.launch {
+            tvShowsDatabase!!.tvShowDao().removeFromWatchList(tvShow)
+        }
+
 }

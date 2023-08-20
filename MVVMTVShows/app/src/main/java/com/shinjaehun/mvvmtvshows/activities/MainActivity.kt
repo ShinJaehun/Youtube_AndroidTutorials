@@ -68,6 +68,10 @@ class MainActivity : AppCompatActivity(), TVShowsListener {
             }
         })
 
+        binding.imageWatchList.setOnClickListener {
+            startActivity(Intent(applicationContext, WatchListActivity::class.java))
+        }
+
 //        getMostPopularTVShows() // 이게 있으면 1번부터 20번까지 한번 중복된다...
 
     }
@@ -187,12 +191,13 @@ class MainActivity : AppCompatActivity(), TVShowsListener {
     override fun onTVShowClick(tvShow: TVShow) {
 //        Log.i(TAG, "clicked!")
         val intent = Intent(applicationContext, TVShowDetailsActivity::class.java)
-        intent.putExtra("id", tvShow.id)
-        intent.putExtra("name", tvShow.name)
-        intent.putExtra("startDate", tvShow.startDate)
-        intent.putExtra("country", tvShow.country)
-        intent.putExtra("network", tvShow.network)
-        intent.putExtra("status", tvShow.status)
+//        intent.putExtra("id", tvShow.id)
+//        intent.putExtra("name", tvShow.name)
+//        intent.putExtra("startDate", tvShow.startDate)
+//        intent.putExtra("country", tvShow.country)
+//        intent.putExtra("network", tvShow.network)
+//        intent.putExtra("status", tvShow.status)
+        intent.putExtra("tvShow", tvShow)
         startActivity(intent)
 
     }

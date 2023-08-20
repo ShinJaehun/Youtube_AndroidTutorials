@@ -1,26 +1,20 @@
 package com.shinjaehun.mvvmtvshows.adapters
 
-import android.text.method.TextKeyListener.clear
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.databinding.DataBindingUtil
-import androidx.recyclerview.widget.AsyncListDiffer
-import androidx.recyclerview.widget.DiffUtil
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.recyclerview.widget.RecyclerView
-import com.shinjaehun.mvvmtvshows.R
 import com.shinjaehun.mvvmtvshows.databinding.ItemContainerTvShowBinding
 import com.shinjaehun.mvvmtvshows.listeners.TVShowsListener
+import com.shinjaehun.mvvmtvshows.listeners.WatchListListener
 import com.shinjaehun.mvvmtvshows.models.TVShow
-import java.util.Collections.addAll
 
-private const val TAG = "TVShowsAdapter"
-class TVShowsAdapter(
+class WatchListAdapter(
     private val tvShows: MutableList<TVShow>,
     private val inflater: LayoutInflater,
-    private val tvShowsListener: TVShowsListener
-) : RecyclerView.Adapter<TVShowsAdapter.TVShowsViewHolder>() {
+    private val watchListListener: WatchListListener
+) : RecyclerView.Adapter<WatchListAdapter.TVShowsViewHolder>() {
 
     inner class TVShowsViewHolder(val binding: ItemContainerTvShowBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -28,7 +22,8 @@ class TVShowsAdapter(
         val binding = ItemContainerTvShowBinding.inflate(
             inflater,
             parent,
-            false)
+            false
+        )
         return TVShowsViewHolder(binding)
     }
 
@@ -41,8 +36,12 @@ class TVShowsAdapter(
                 binding.tvShow = this
                 binding.executePendingBindings()
                 binding.root.setOnClickListener {
-                    tvShowsListener.onTVShowClick(this)
+                    watchListListener.onTVShowClicked(this)
                 }
+                binding.imageDelete.setOnClickListener {
+                    watchListListener.removeTVShowFromWatchList(this, adapterPosition)
+                }
+                binding.imageDelete.visibility = View.VISIBLE
             }
         }
     }

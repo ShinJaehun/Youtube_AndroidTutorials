@@ -8,20 +8,28 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.shinjaehun.mvvmtvshows.R
+import com.shinjaehun.mvvmtvshows.adapters.EpisodesAdapter
 import com.shinjaehun.mvvmtvshows.adapters.ImageSliderAdapter
 import com.shinjaehun.mvvmtvshows.databinding.ActivityTvShowDetailsBinding
+import com.shinjaehun.mvvmtvshows.databinding.LayoutEpisodesBottomSheetBinding
+import com.shinjaehun.mvvmtvshows.models.TVShow
 import com.shinjaehun.mvvmtvshows.repositories.TVShowDetailsRepository
+import com.shinjaehun.mvvmtvshows.util.TempDataHolder
 import com.shinjaehun.mvvmtvshows.viewmodels.TVShowDetailsViewModel
 import com.shinjaehun.mvvmtvshows.viewmodels.TVShowDetailsViewModelFactory
 import com.squareup.picasso.Callback
@@ -35,6 +43,12 @@ class TVShowDetailsActivity : AppCompatActivity() {
 
     private lateinit var activityTvShowDetailsBinding: ActivityTvShowDetailsBinding
     private lateinit var tvShowDetailsViewModel: TVShowDetailsViewModel
+
+    private var episodesBottomSheetDialog: BottomSheetDialog? = null
+    private lateinit var layoutEpisodesBottomSheetBinding: LayoutEpisodesBottomSheetBinding
+
+    private lateinit var tvShow: TVShow
+    private var isTVShowAvailableInWatchList: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,12 +67,39 @@ class TVShowDetailsActivity : AppCompatActivity() {
         activityTvShowDetailsBinding.imageBack.setOnClickListener {
             onBackPressed()
         }
+
+        tvShow = intent.getSerializableExtra("tvShow") as TVShow
+
+        checkTVShowInWatchList()
+    }
+
+    private fun checkTVShowInWatchList() {
+
+        tvShowDetailsViewModel.getTVShowFromWatchList(tvShow.id.toString()).observe(this, Observer {
+            if (it != null) {
+                Log.i(TAG, "getTVShowFromWatchList result tvshow: ${it.name}")
+                isTVShowAvailableInWatchList = true
+                activityTvShowDetailsBinding.imageAddWatchlist.setImageResource(R.drawable.ic_added)
+            }
+        })
+
+        // 븅시나 LiveData를 observe해야지!!
+        // LiveData 💔 Null-safety
+        // https://chao2zhang.medium.com/livedata-nullability-99ef4e01bc54
+//        tvShowDetailsViewModel.getTVShowFromWatchList(tvShow.id.toString()).also {
+//            if (it != null) {
+//                Log.i(TAG, "getTVShowFromWatchList result tvshow: ${it}")
+//                isTVShowAvailableInWatchList = true
+//                activityTvShowDetailsBinding.imageAddWatchlist.setImageResource(R.drawable.ic_added)
+//            }
+//        }
     }
 
     private fun getTVShowDetails() {
         activityTvShowDetailsBinding.isLoading = true
 
-        val tvShowId = intent.getIntExtra("id", -1).toString()
+//        val tvShowId = intent.getIntExtra("id", -1).toString()
+        val tvShowId = tvShow.id.toString()
 
         tvShowDetailsViewModel.getTVShowDetails(tvShowId)
         tvShowDetailsViewModel.tvShowDetails.observe(this, Observer { response ->
@@ -131,24 +172,72 @@ class TVShowDetailsActivity : AppCompatActivity() {
                     intent.data = Uri.parse(response.tvShow.url)
                     startActivity(intent)
                 }
+                activityTvShowDetailsBinding.buttonEpisodes.setOnClickListener {
+                    if (episodesBottomSheetDialog == null) {
+                        Log.i(TAG, "dialog is ready!")
+                        episodesBottomSheetDialog = BottomSheetDialog(this@TVShowDetailsActivity)
+
+                        layoutEpisodesBottomSheetBinding = LayoutEpisodesBottomSheetBinding.inflate(layoutInflater)
+
+                        // 이렇게 난리 치지 않아도 작동함
+//                        layoutEpisodesBottomSheetBinding = DataBindingUtil.inflate(
+//                            LayoutInflater.from(this@TVShowDetailsActivity),
+//                            R.layout.layout_episodes_bottom_sheet,
+//                            findViewById(R.id.episodeContainer),
+//                            false
+//                        )
+                        episodesBottomSheetDialog!!.setContentView(layoutEpisodesBottomSheetBinding.root)
+
+                        layoutEpisodesBottomSheetBinding.episodeRecyclerView.adapter =
+                            EpisodesAdapter(response.tvShow.episodes, layoutInflater)
+
+                        episodesBottomSheetDialog!!.show() // 아 씨발 이거 있다는 거 이제야 봤네
+
+                        layoutEpisodesBottomSheetBinding.imageClose.setOnClickListener {
+                            episodesBottomSheetDialog!!.dismiss()
+                        }
+                    }
+                }
+
                 activityTvShowDetailsBinding.buttonWebsite.visibility = View.VISIBLE
-
-
                 activityTvShowDetailsBinding.buttonEpisodes.visibility = View.VISIBLE
 
                 loadBasicTVShowDetails()
 
+                activityTvShowDetailsBinding.imageAddWatchlist.setOnClickListener {
+                    if (isTVShowAvailableInWatchList) {
+                        tvShowDetailsViewModel.removeTVShowFromWatchList(tvShow).also {
+                            isTVShowAvailableInWatchList = false
+                            TempDataHolder.IS_WATCHLIST_UPDATED = true
+                            activityTvShowDetailsBinding.imageAddWatchlist.setImageResource(R.drawable.ic_watchlist)
+                            Toast.makeText(applicationContext, "removed from watchlist", Toast.LENGTH_SHORT).show()
+                        }
+
+                    } else {
+                        TempDataHolder.IS_WATCHLIST_UPDATED = true
+                        tvShowDetailsViewModel.addWatchList(tvShow).also {
+                            activityTvShowDetailsBinding.imageAddWatchlist.setImageResource(R.drawable.ic_added)
+                            Toast.makeText(applicationContext, "Added to watchlist", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+
+                activityTvShowDetailsBinding.imageAddWatchlist.visibility = View.VISIBLE
             }
         })
     }
 
     private fun loadBasicTVShowDetails() {
-        activityTvShowDetailsBinding.tvShowName = intent.getStringExtra("name").toString()
-        activityTvShowDetailsBinding.networkCountry =
-            intent.getStringExtra("network").toString() + " (" +
-                    intent.getStringExtra("country").toString() + ")"
-        activityTvShowDetailsBinding.status = intent.getStringExtra("status").toString()
-        activityTvShowDetailsBinding.startedDate = intent.getStringExtra("startDate").toString()
+        activityTvShowDetailsBinding.tvShowName = tvShow.name
+//        activityTvShowDetailsBinding.tvShowName = intent.getStringExtra("name").toString()
+        activityTvShowDetailsBinding.networkCountry = tvShow.network  + " (" + tvShow.country + ")"
+//        activityTvShowDetailsBinding.networkCountry =
+//            intent.getStringExtra("network").toString() + " (" +
+//                    intent.getStringExtra("country").toString() + ")"
+        activityTvShowDetailsBinding.status = tvShow.status
+//        activityTvShowDetailsBinding.status = intent.getStringExtra("status").toString()
+        activityTvShowDetailsBinding.startedDate = tvShow.startDate
+//        activityTvShowDetailsBinding.startedDate = intent.getStringExtra("startDate").toString()
 
         activityTvShowDetailsBinding.textName.visibility = View.VISIBLE
         activityTvShowDetailsBinding.textNetworkCountry.visibility = View.VISIBLE
