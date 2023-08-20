@@ -16,6 +16,9 @@
         android:theme="@style/Theme.MVVMTVShows"
         tools:targetApi="31">
         <activity
+            android:name=".activities.SearchActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.WatchListActivity"
             android:exported="false" />
         <activity

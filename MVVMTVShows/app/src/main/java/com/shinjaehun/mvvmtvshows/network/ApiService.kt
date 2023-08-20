@@ -22,4 +22,12 @@ interface ApiService {
         @Query("q")
         tvShowId: String
     ): Call<TVShowDetailsResponse>
+
+    @GET("search")
+    fun searchTVShow(
+        @Query("q")
+        query: String,
+        @Query("page")
+        page: Int
+    ): Call<TVShowsResponse>
 }

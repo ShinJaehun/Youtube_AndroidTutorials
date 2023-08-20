@@ -72,6 +72,10 @@ class MainActivity : AppCompatActivity(), TVShowsListener {
             startActivity(Intent(applicationContext, WatchListActivity::class.java))
         }
 
+        binding.imageSearch.setOnClickListener {
+            startActivity(Intent(applicationContext, SearchActivity::class.java))
+        }
+
 //        getMostPopularTVShows() // 이게 있으면 1번부터 20번까지 한번 중복된다...
 
     }
