@@ -4,9 +4,12 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import com.shinjaehun.notesapp.database.NotesDatabase
 import com.shinjaehun.notesapp.databinding.ActivityCreateNoteBinding
 import com.shinjaehun.notesapp.entities.Note
+import com.shinjaehun.notesapp.viewmodels.CreateNoteViewModel
+import com.shinjaehun.notesapp.viewmodels.CreateNoteViewModelFactory
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -16,6 +19,7 @@ import java.util.*
 class CreateNoteActivity : AppCompatActivity() {
 
     private lateinit var activityCreateNoteBinding: ActivityCreateNoteBinding
+    private lateinit var createNoteViewModel: CreateNoteViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityCreateNoteBinding = ActivityCreateNoteBinding.inflate(layoutInflater)
@@ -57,12 +61,13 @@ class CreateNoteActivity : AppCompatActivity() {
             dateTime = dateTime
         )
 
-        GlobalScope.launch {
-            NotesDatabase.getDatabase(applicationContext)?.noteDao()!!.insertNote(note).also {
-                val intent = Intent()
-                setResult(RESULT_OK, intent)
-                finish()
-            }
+        val viewModelProviderFactory = CreateNoteViewModelFactory(application)
+        createNoteViewModel = ViewModelProvider(this, viewModelProviderFactory).get(CreateNoteViewModel::class.java)
+        createNoteViewModel.insertNote(note).also {
+//            val intent = Intent()
+//            setResult(RESULT_OK, intent)
+            finish()
         }
+
     }
 }

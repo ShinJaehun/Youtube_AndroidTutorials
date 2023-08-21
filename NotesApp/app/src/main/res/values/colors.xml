@@ -35,7 +35,7 @@
     <color name="colorNoteSubtitleText">#FAFAFA</color>
     <color name="colorMiscBackground">#1F1F1F</color>
     <!--    -->
-    <color name="colorDefaultNoteColor">#deeae6</color>
+    <color name="colorDefaultNoteColor">#333333</color>
     <color name="colorNoteColor2">#FF1D8E</color>
     <color name="colorNoteColor3">#3a52Fc</color>
     <color name="colorNoteColor4">#F3DD5C</color>
