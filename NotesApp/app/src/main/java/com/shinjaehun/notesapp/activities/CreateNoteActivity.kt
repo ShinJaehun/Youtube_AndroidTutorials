@@ -1,4 +1,4 @@
-package com.shinjaehun.notesapp
+package com.shinjaehun.notesapp.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

@@ -1,9 +1,8 @@
-package com.shinjaehun.notesapp
+package com.shinjaehun.notesapp.activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.shinjaehun.notesapp.databinding.ActivityCreateNoteBinding
 import com.shinjaehun.notesapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
