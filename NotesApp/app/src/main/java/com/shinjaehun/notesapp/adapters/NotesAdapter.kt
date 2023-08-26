@@ -1,5 +1,8 @@
 package com.shinjaehun.notesapp.adapters
 
+import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,6 +39,20 @@ false)
                 }
 
                 binding.tvDateTime.text = this.dateTime
+
+                val gradientDrawable = binding.layoutNote.background as GradientDrawable
+                if (this.color != null) {
+                    gradientDrawable.setColor(Color.parseColor(this.color))
+                } else {
+                    gradientDrawable.setColor(Color.parseColor("#333333"))
+                }
+
+                if (this.imagePath != null) {
+                    binding.noteImagePreview.setImageBitmap(BitmapFactory.decodeFile(this.imagePath))
+                    binding.noteImagePreview.visibility = View.VISIBLE
+                } else {
+                    binding.noteImagePreview.visibility = View.GONE
+                }
             }
         }
     }

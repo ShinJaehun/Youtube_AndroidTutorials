@@ -3,18 +3,14 @@ package com.shinjaehun.notesapp.activities
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.shinjaehun.notesapp.adapters.NotesAdapter
-import com.shinjaehun.notesapp.database.NotesDatabase
 import com.shinjaehun.notesapp.databinding.ActivityMainBinding
 import com.shinjaehun.notesapp.entities.Note
 import com.shinjaehun.notesapp.viewmodels.NotesViewModel
 import com.shinjaehun.notesapp.viewmodels.NotesViewModelFactory
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 private const val TAG = "MainActivity"
 
@@ -44,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         activityMainBinding.notesRecyclerView.adapter = notesAdapter
 
         notesViewModel.getNotes()
-        obs()
+        observeNotes()
     }
 
 //    override fun onStart() {
@@ -52,19 +48,21 @@ class MainActivity : AppCompatActivity() {
 //        obs() // 얘가 onCreate에 있으면...
 //    }
 
-    private fun obs() {
+    private fun observeNotes() {
         notesViewModel.notes.observe(this, Observer {
             if (notes.size == 0) {
+            // We checked if the note list is empty it means the app is just started since we have declared it as a global variable, in this case, we are adding all notes from the database to this note list and notify the adapter about the new dataset.
                 notes.addAll(it)
                 notesAdapter.notifyDataSetChanged()
             } else {
+            // In another case, if the note list is not empty then it means notes are already loaded from the database so we are just adding only the latest note to the note list and notify adapter about new note inserted. And last we scrolled our recycler view to the top
                 notes.add(0, it[0])
                 notesAdapter.notifyItemInserted(0)
             }
             activityMainBinding.notesRecyclerView.smoothScrollToPosition(0)
         })
-
     }
+
 
 //    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 //        super.onActivityResult(requestCode, resultCode, data)
