@@ -25,7 +25,7 @@ data class Note (
     val color: String? = null,
 
     @ColumnInfo(name = "web_link")
-    val webLink: String? = null
+    var webLink: String? = null
 ) : java.io.Serializable {
 
     @PrimaryKey(autoGenerate = true)

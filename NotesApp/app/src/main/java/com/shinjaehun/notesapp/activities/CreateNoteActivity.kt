@@ -5,15 +5,22 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Patterns
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -39,9 +46,12 @@ class CreateNoteActivity : AppCompatActivity() {
     private var selectedNoteColor: String = "#333333"
     private var selectedImagePath: String = ""
 
+    private var dialogAddURL: AlertDialog? = null
+
     companion object {
-        const val REQUEST_CODE_STORAGE_PERMISSION = 1
-        const val REQUEST_CODE_SELECT_IMAGE = 2
+        private const val REQUEST_CODE_STORAGE_PERMISSION = 1
+        private const val REQUEST_CODE_SELECT_IMAGE = 2
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +79,6 @@ class CreateNoteActivity : AppCompatActivity() {
         val noteText = activityCreateNoteBinding.etNote.text.toString()
         val dateTime = activityCreateNoteBinding.textDateTime.text.toString()
 
-
         if (title.trim().isEmpty()) {
             Toast.makeText(this, "Note title can't be empty", Toast.LENGTH_SHORT).show()
             return
@@ -90,6 +99,10 @@ class CreateNoteActivity : AppCompatActivity() {
             imagePath = selectedImagePath
         )
 
+        if (activityCreateNoteBinding.layoutWebUrl.visibility == View.VISIBLE) {
+            note.webLink = activityCreateNoteBinding.textWebUrl.text.toString()
+        }
+
         val viewModelProviderFactory = CreateNoteViewModelFactory(application)
         createNoteViewModel = ViewModelProvider(this, viewModelProviderFactory).get(CreateNoteViewModel::class.java)
         createNoteViewModel.insertNote(note).also {
@@ -97,6 +110,8 @@ class CreateNoteActivity : AppCompatActivity() {
 //            setResult(RESULT_OK, intent)
             finish()
         }
+
+
 
     }
 
@@ -184,7 +199,11 @@ class CreateNoteActivity : AppCompatActivity() {
             } else {
                 selectImage()
             }
+        }
 
+        activityCreateNoteBinding.misc.layoutAddUrl.setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            showAddURLDialog()
         }
     }
 
@@ -241,7 +260,7 @@ class CreateNoteActivity : AppCompatActivity() {
         }
     }
 
-    fun getPathFromUri(contentUri: Uri): String {
+    private fun getPathFromUri(contentUri: Uri): String {
         // contentResolver와 cursor에 대해 공부 필요!
         val filePath: String
         val cursor = contentResolver.query(contentUri, null, null, null, null)
@@ -254,5 +273,41 @@ class CreateNoteActivity : AppCompatActivity() {
             cursor.close()
         }
         return filePath
+    }
+
+    private fun showAddURLDialog() {
+        if (dialogAddURL == null) {
+            val builder = AlertDialog.Builder(this@CreateNoteActivity)
+            val view : View = LayoutInflater.from(this).inflate(
+                R.layout.layout_add_url,
+                findViewById<ViewGroup>(R.id.layout_addUrlContainer)
+            )
+            builder.setView(view)
+            dialogAddURL = builder.create()
+            if (dialogAddURL!!.window != null) {
+                dialogAddURL!!.window!!.setBackgroundDrawable(ColorDrawable(0))
+            }
+
+            val inputURL = view.findViewById<EditText>(R.id.et_url)
+            inputURL.requestFocus()
+
+            view.findViewById<TextView>(R.id.textAdd).setOnClickListener {
+                if (inputURL.text.toString().trim().isEmpty()) {
+                    Toast.makeText(this@CreateNoteActivity, "Enter URL", Toast.LENGTH_SHORT).show()
+                } else if (!Patterns.WEB_URL.matcher(inputURL.text.toString()).matches()) {
+                    Toast.makeText(this@CreateNoteActivity, "Enter valid URL", Toast.LENGTH_SHORT).show()
+                } else {
+                    activityCreateNoteBinding.textWebUrl.text = inputURL.text.toString()
+                    activityCreateNoteBinding.layoutWebUrl.visibility = View.VISIBLE
+                    dialogAddURL!!.dismiss()
+                }
+            }
+
+            view.findViewById<TextView>(R.id.textCancel).setOnClickListener {
+                dialogAddURL!!.dismiss()
+            }
+        }
+
+        dialogAddURL!!.show()
     }
 }
