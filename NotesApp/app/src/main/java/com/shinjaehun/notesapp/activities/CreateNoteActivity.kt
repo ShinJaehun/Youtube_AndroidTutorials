@@ -15,10 +15,7 @@ import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
@@ -40,19 +37,19 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class CreateNoteActivity : AppCompatActivity() {
+    companion object {
+        private const val REQUEST_CODE_STORAGE_PERMISSION = 1
+        private const val REQUEST_CODE_SELECT_IMAGE = 2
+    }
 
     private lateinit var activityCreateNoteBinding: ActivityCreateNoteBinding
     private lateinit var createNoteViewModel: CreateNoteViewModel
     private var selectedNoteColor: String = "#333333"
-    private var selectedImagePath: String = ""
 
+    private var selectedImagePath: String = ""
     private var dialogAddURL: AlertDialog? = null
 
-    companion object {
-        private const val REQUEST_CODE_STORAGE_PERMISSION = 1
-        private const val REQUEST_CODE_SELECT_IMAGE = 2
-
-    }
+    private var alreadyAvailableNote: Note? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,10 +66,32 @@ class CreateNoteActivity : AppCompatActivity() {
             saveNote()
         }
 
+        if (intent.getBooleanExtra("isViewOrUpdate", false)) {
+            alreadyAvailableNote = intent.getSerializableExtra("note") as Note
+            setViewOrUpdateNote()
+        }
+
         initMisc()
         setSubtitleIndicatorColor()
     }
 
+    private fun setViewOrUpdateNote(){
+        activityCreateNoteBinding.etNoteTitle.setText(alreadyAvailableNote!!.title)
+        activityCreateNoteBinding.etNoteSubtitle.setText(alreadyAvailableNote!!.subtitle)
+        activityCreateNoteBinding.etNote.setText(alreadyAvailableNote!!.noteText)
+        activityCreateNoteBinding.textDateTime.text = alreadyAvailableNote!!.dateTime // 근데 얘는 왜 setText() 없어도 되는거야?
+        if (alreadyAvailableNote!!.imagePath != null && !alreadyAvailableNote!!.imagePath!!.trim().isEmpty()) {
+            activityCreateNoteBinding.imageNote.setImageBitmap(BitmapFactory.decodeFile(alreadyAvailableNote!!.imagePath))
+            activityCreateNoteBinding.imageNote.visibility = View.VISIBLE
+            selectedImagePath = alreadyAvailableNote!!.imagePath!! // 근데 selectedImagePath를 여기서 저장해둬야 할 필요가 있음?
+        }
+
+        if (alreadyAvailableNote!!.webLink != null && !alreadyAvailableNote!!.webLink!!.trim().isEmpty()) {
+            activityCreateNoteBinding.textWebUrl.text = alreadyAvailableNote!!.webLink
+            activityCreateNoteBinding.layoutWebUrl.visibility = View.VISIBLE
+        }
+
+    }
     private fun saveNote() {
         val title = activityCreateNoteBinding.etNoteTitle.text.toString()
         val subtitle = activityCreateNoteBinding.etNoteSubtitle.text.toString()
@@ -90,7 +109,7 @@ class CreateNoteActivity : AppCompatActivity() {
             return
         }
 
-        var note = Note(
+        val note = Note(
             title = title,
             subtitle = subtitle,
             noteText = noteText,
@@ -103,6 +122,14 @@ class CreateNoteActivity : AppCompatActivity() {
             note.webLink = activityCreateNoteBinding.textWebUrl.text.toString()
         }
 
+        if (alreadyAvailableNote != null) {
+            // here, we are setting id of new note from an already available note.
+            // since we have set onConflictStrategy to "REPLACE" in NoteDao.
+            // this means if id of new note is already available in the db
+            // then it will be replaced with new note and our note get updated
+            note.id = alreadyAvailableNote!!.id
+        }
+
         val viewModelProviderFactory = CreateNoteViewModelFactory(application)
         createNoteViewModel = ViewModelProvider(this, viewModelProviderFactory).get(CreateNoteViewModel::class.java)
         createNoteViewModel.insertNote(note).also {
@@ -110,9 +137,6 @@ class CreateNoteActivity : AppCompatActivity() {
 //            setResult(RESULT_OK, intent)
             finish()
         }
-
-
-
     }
 
     private fun initMisc() {
@@ -183,7 +207,14 @@ class CreateNoteActivity : AppCompatActivity() {
             setSubtitleIndicatorColor()
         }
 
-
+        if (alreadyAvailableNote != null && alreadyAvailableNote!!.color != null && !alreadyAvailableNote!!.color!!.trim().isEmpty()) {
+            when (alreadyAvailableNote!!.color) {
+                "#FF1D8E" -> layoutMisc.findViewById<ImageView>(R.id.image_color2).performClick()
+                "#3a52Fc" -> layoutMisc.findViewById<ImageView>(R.id.image_color3).performClick()
+                "#F3DD5C" -> layoutMisc.findViewById<ImageView>(R.id.image_color4).performClick()
+                "#1AA7EC" -> layoutMisc.findViewById<ImageView>(R.id.image_color5).performClick()
+            }
+        }
 
         activityCreateNoteBinding.misc.layoutAddImage.setOnClickListener {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -220,6 +251,7 @@ class CreateNoteActivity : AppCompatActivity() {
 //        }
 
         Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).also {
+            it.type = "image/*"
             startActivityForResult(it, REQUEST_CODE_SELECT_IMAGE)
         }
     }
@@ -246,15 +278,26 @@ class CreateNoteActivity : AppCompatActivity() {
                 val selectedImageUri = data.data
                 if (selectedImageUri != null) {
                     try {
-                        val inputStream: InputStream? = contentResolver.openInputStream(selectedImageUri)
-                        val bitmap: Bitmap = BitmapFactory.decodeStream(inputStream)
-                        activityCreateNoteBinding.imageNote.setImageBitmap(bitmap)
+                        activityCreateNoteBinding.imageNote.setImageURI(selectedImageUri)
                         activityCreateNoteBinding.imageNote.visibility = View.VISIBLE
 
                         selectedImagePath = getPathFromUri(selectedImageUri)
                     } catch (e: Exception) {
                         Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
                     }
+
+                    // 왜 이렇게 bitmap decode 뭘 써 댄거여... 이것 때문에 계속 경고 메시지 떴었는데....
+
+//                    try {
+//                        val inputStream: InputStream? = contentResolver.openInputStream(selectedImageUri)
+//                        val bitmap: Bitmap = BitmapFactory.decodeStream(inputStream)
+//                        activityCreateNoteBinding.imageNote.setImageBitmap(bitmap)
+//                        activityCreateNoteBinding.imageNote.visibility = View.VISIBLE
+//
+//                        selectedImagePath = getPathFromUri(selectedImageUri)
+//                    } catch (e: Exception) {
+//                        Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
+//                    }
                 }
             }
         }
