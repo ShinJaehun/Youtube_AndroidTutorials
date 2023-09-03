@@ -49,6 +49,7 @@ class CreateNoteActivity : AppCompatActivity() {
 
     private var selectedImagePath: String = ""
     private var dialogAddURL: AlertDialog? = null
+    private var dialogDeleteNote: AlertDialog? = null
 
     private var alreadyAvailableNote: Note? = null
 
@@ -252,6 +253,45 @@ class CreateNoteActivity : AppCompatActivity() {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             showAddURLDialog()
         }
+
+        if (alreadyAvailableNote != null) {
+            activityCreateNoteBinding.misc.layoutDeleteNote.visibility = View.VISIBLE
+            activityCreateNoteBinding.misc.layoutDeleteNote.setOnClickListener {
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                showDeleteNoteDialog()
+            }
+        }
+    }
+
+    private fun showDeleteNoteDialog() {
+        if (dialogDeleteNote == null) {
+            val builder : AlertDialog.Builder = AlertDialog.Builder(this@CreateNoteActivity)
+            val view : View = LayoutInflater.from(this).inflate(
+                R.layout.layout_delete_note,
+                findViewById<ViewGroup>(R.id.layoutDeleteNoteContainer)
+            )
+            builder.setView(view)
+            dialogDeleteNote = builder.create()
+            if (dialogDeleteNote!!.window != null) {
+                dialogDeleteNote!!.window!!.setBackgroundDrawable(ColorDrawable(0))
+            }
+            view.findViewById<TextView>(R.id.textDeleteNote).setOnClickListener {
+                val viewModelProviderFactory = CreateNoteViewModelFactory(application)
+                createNoteViewModel = ViewModelProvider(this, viewModelProviderFactory).get(CreateNoteViewModel::class.java)
+                createNoteViewModel.deleteNote(alreadyAvailableNote!!).also {
+//            val intent = Intent()
+//            setResult(RESULT_OK, intent)
+                    dialogDeleteNote!!.dismiss() // 이게 없으면 
+                    finish()
+                }
+            }
+
+            view.findViewById<TextView>(R.id.textCancel).setOnClickListener {
+                dialogDeleteNote!!.dismiss()
+            }
+        }
+        dialogDeleteNote!!.show()
+
     }
 
     private fun setSubtitleIndicatorColor() {

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_misc"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:background="@drawable/background_misc"
     android:layout_height="wrap_content"
-    app:behavior_peekHeight= "@dimen/_40sdp"
+    app:behavior_peekHeight="@dimen/_40sdp"
     app:layout_behavior="@string/bottom_sheet_behavior">
 
     <TextView
@@ -192,7 +193,9 @@
         android:layout_marginHorizontal="@dimen/_10sdp"
         android:layout_marginBottom="@dimen/_10sdp"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone"
+        tools:ignore="UseCompoundDrawables">
 
         <ImageView
             android:layout_width="@dimen/_22sdp"

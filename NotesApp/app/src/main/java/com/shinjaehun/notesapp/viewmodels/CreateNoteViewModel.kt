@@ -15,4 +15,9 @@ class CreateNoteViewModel(
         viewModelScope.launch {
             NotesDatabase.getDatabase(app)?.noteDao()!!.insertNote(note)
         }
+
+    fun deleteNote(note: Note) =
+        viewModelScope.launch {
+            NotesDatabase.getDatabase(app)?.noteDao()!!.deleteNote(note)
+        }
 }
