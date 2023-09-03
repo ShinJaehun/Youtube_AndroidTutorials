@@ -32,6 +32,7 @@ import com.shinjaehun.notesapp.viewmodels.CreateNoteViewModelFactory
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.select
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
@@ -71,6 +72,17 @@ class CreateNoteActivity : AppCompatActivity() {
             setViewOrUpdateNote()
         }
 
+        activityCreateNoteBinding.imageDeleteWebUrl.setOnClickListener {
+            activityCreateNoteBinding.textWebUrl.text = null
+            activityCreateNoteBinding.layoutWebUrl.visibility = View.GONE
+        }
+
+        activityCreateNoteBinding.imageDeleteImage.setOnClickListener {
+            activityCreateNoteBinding.imageNote.setImageURI(null)
+            activityCreateNoteBinding.imageNote.visibility = View.GONE
+            activityCreateNoteBinding.imageDeleteImage.visibility = View.GONE
+            selectedImagePath = ""
+        }
         initMisc()
         setSubtitleIndicatorColor()
     }
@@ -81,8 +93,12 @@ class CreateNoteActivity : AppCompatActivity() {
         activityCreateNoteBinding.etNote.setText(alreadyAvailableNote!!.noteText)
         activityCreateNoteBinding.textDateTime.text = alreadyAvailableNote!!.dateTime // 근데 얘는 왜 setText() 없어도 되는거야?
         if (alreadyAvailableNote!!.imagePath != null && !alreadyAvailableNote!!.imagePath!!.trim().isEmpty()) {
-            activityCreateNoteBinding.imageNote.setImageBitmap(BitmapFactory.decodeFile(alreadyAvailableNote!!.imagePath))
+//            activityCreateNoteBinding.imageNote.setImageBitmap(BitmapFactory.decodeFile(alreadyAvailableNote!!.imagePath))
+            activityCreateNoteBinding.imageNote.setImageURI(Uri.parse(alreadyAvailableNote!!.imagePath))
             activityCreateNoteBinding.imageNote.visibility = View.VISIBLE
+
+            activityCreateNoteBinding.imageDeleteImage.visibility = View.VISIBLE
+
             selectedImagePath = alreadyAvailableNote!!.imagePath!! // 근데 selectedImagePath를 여기서 저장해둬야 할 필요가 있음?
         }
 
@@ -280,6 +296,8 @@ class CreateNoteActivity : AppCompatActivity() {
                     try {
                         activityCreateNoteBinding.imageNote.setImageURI(selectedImageUri)
                         activityCreateNoteBinding.imageNote.visibility = View.VISIBLE
+
+                        activityCreateNoteBinding.imageDeleteImage.visibility = View.VISIBLE
 
                         selectedImagePath = getPathFromUri(selectedImageUri)
                     } catch (e: Exception) {
