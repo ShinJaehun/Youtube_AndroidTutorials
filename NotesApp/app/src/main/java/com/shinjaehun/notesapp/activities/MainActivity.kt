@@ -3,7 +3,10 @@ package com.shinjaehun.notesapp.activities
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -13,6 +16,8 @@ import com.shinjaehun.notesapp.entities.Note
 import com.shinjaehun.notesapp.listeners.NotesListener
 import com.shinjaehun.notesapp.viewmodels.NotesViewModel
 import com.shinjaehun.notesapp.viewmodels.NotesViewModelFactory
+import java.util.*
+import kotlin.collections.ArrayList
 
 private const val TAG = "MainActivity"
 
@@ -27,7 +32,10 @@ class MainActivity : AppCompatActivity(), NotesListener {
     private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var notesAdapter : NotesAdapter
     private lateinit var notesViewModel: NotesViewModel
-    private var notes: MutableList<Note> = mutableListOf()
+//    private var notes: MutableList<Note> = mutableListOf()
+
+    private var timer: Timer? = null
+
 
     private var noteClickedPosition: Int = -1
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,9 +62,9 @@ class MainActivity : AppCompatActivity(), NotesListener {
             // 그냥 이렇게 하는게 리스트를 깔끔하게 한번만 호출함
             list?.let {
 
-                it.forEachIndexed { index, note ->
-                    Log.i(TAG, "notes[$index]: ${note.title}")
-                }
+//                it.forEachIndexed { index, note ->
+//                    Log.i(TAG, "notes[$index]: ${note.title}")
+//                }
 
                 notesAdapter.updateList(it)
             }
@@ -64,6 +72,28 @@ class MainActivity : AppCompatActivity(), NotesListener {
 
 //        notesViewModel.getNotes()
 //        observeNotes(REQUEST_CODE_SHOW_NOTES)
+
+        activityMainBinding.etSearch.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                notesAdapter.cancelTimer()
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                notesViewModel.notes.observe(this@MainActivity, Observer { list ->
+                    list?.let {
+                        list.forEachIndexed { index, note ->
+                            Log.i(TAG, "viewModel notes[$index]: ${note.title}")
+                        }
+                        notesAdapter.searchNotes(s.toString(), list)
+
+                    }
+                })
+            }
+        })
     }
 
 //    override fun onStart() {

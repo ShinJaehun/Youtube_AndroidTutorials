@@ -24,7 +24,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.shinjaehun.notesapp.R
-import com.shinjaehun.notesapp.database.NotesDatabase
+import com.shinjaehun.notesapp.dao.database.NotesDatabase
 import com.shinjaehun.notesapp.databinding.ActivityCreateNoteBinding
 import com.shinjaehun.notesapp.entities.Note
 import com.shinjaehun.notesapp.viewmodels.CreateNoteViewModel

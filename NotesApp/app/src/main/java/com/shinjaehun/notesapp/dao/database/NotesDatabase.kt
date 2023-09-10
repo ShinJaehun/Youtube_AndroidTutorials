@@ -1,4 +1,4 @@
-package com.shinjaehun.notesapp.database
+package com.shinjaehun.notesapp.dao.database
 
 import android.content.Context
 import androidx.room.Database

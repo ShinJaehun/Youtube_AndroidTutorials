@@ -3,7 +3,7 @@ package com.shinjaehun.notesapp.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.shinjaehun.notesapp.database.NotesDatabase
+import com.shinjaehun.notesapp.dao.database.NotesDatabase
 import com.shinjaehun.notesapp.entities.Note
 import kotlinx.coroutines.launch
 

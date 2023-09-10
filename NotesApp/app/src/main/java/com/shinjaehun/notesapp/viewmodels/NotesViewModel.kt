@@ -6,7 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.shinjaehun.notesapp.database.NotesDatabase
+import com.shinjaehun.notesapp.dao.database.NotesDatabase
 import com.shinjaehun.notesapp.entities.Note
 import kotlinx.coroutines.launch
 
@@ -22,6 +22,4 @@ class NotesViewModel(
     fun getNotes() {
         notes = NotesDatabase.getDatabase(app.applicationContext)?.noteDao()!!.getAllNotes()
     }
-
-
 }

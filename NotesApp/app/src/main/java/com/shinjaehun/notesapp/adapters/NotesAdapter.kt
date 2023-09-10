@@ -12,16 +12,24 @@ import androidx.recyclerview.widget.RecyclerView
 import com.shinjaehun.notesapp.databinding.ItemContainerNoteBinding
 import com.shinjaehun.notesapp.entities.Note
 import com.shinjaehun.notesapp.listeners.NotesListener
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import java.util.*
+import kotlin.collections.ArrayList
 
 private const val TAG = "NotesAdapter"
 
 class NotesAdapter(
 //    private val notes: MutableList<Note>,
     private val inflater: LayoutInflater,
-    private val notesListener: NotesListener
+    private val notesListener: NotesListener,
+//    private val notesSource: ArrayList<Note>
 ) : RecyclerView.Adapter<NotesAdapter.NoteViewHolder>(){
 
     private val allNotes = ArrayList<Note>()
+    private var timer: Timer? = null
 
     inner class NoteViewHolder(val binding: ItemContainerNoteBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -81,6 +89,38 @@ false)
                     notesListener.onNoteClicked(this, position)
                 }
             }
+        }
+    }
+
+    fun searchNotes(searchKeyword : String, notesSource: List<Note>) {
+        var searchNotes : ArrayList<Note> = arrayListOf()
+        timer = Timer()
+
+        timer!!.schedule(object: TimerTask(){
+            override fun run() {
+
+                if (searchKeyword.trim().isEmpty()) {
+                    searchNotes = notesSource as ArrayList<Note>
+                } else {
+                    for (note in notesSource) {
+                        if (note.title.toLowerCase().contains(searchKeyword.toLowerCase())
+                            || note.subtitle.toLowerCase().contains(searchKeyword.toLowerCase())
+                            || note.noteText.toLowerCase().contains(searchKeyword.toLowerCase())) {
+                            searchNotes.add(note)
+                        }
+                    }
+                }
+
+                GlobalScope.launch(Dispatchers.Main) {
+                    updateList(searchNotes)
+                }
+            }
+        }, 500)
+    }
+
+    fun cancelTimer() {
+        if (timer != null) {
+            timer!!.cancel()
         }
     }
 }
