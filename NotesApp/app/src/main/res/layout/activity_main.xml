@@ -88,21 +88,21 @@
             android:src="@drawable/ic_add_circle_outline"
             app:tint="@color/colorIcons"/>
         <ImageView
-            android:id="@+id/image_addChangeTheme"
+            android:id="@+id/image_addImage"
             android:layout_width="@dimen/_23sdp"
             android:layout_height="@dimen/_23sdp"
             android:contentDescription="@string/app_name"
             android:layout_marginStart="@dimen/_15sdp"
-            android:src="@drawable/ic_baseline_color_lens_24"
+            android:src="@drawable/ic_image"
             app:tint="@color/colorIcons"/>
 
         <ImageView
-            android:id="@+id/image_backup"
+            android:id="@+id/image_addWebLink"
             android:layout_width="@dimen/_23sdp"
             android:layout_height="@dimen/_23sdp"
             android:contentDescription="@string/app_name"
             android:layout_marginStart="@dimen/_15sdp"
-            android:src="@drawable/ic_baseline_backup_24"
+            android:src="@drawable/ic_web"
             app:tint="@color/colorIcons"/>
     </LinearLayout>
 

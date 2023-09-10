@@ -1,15 +1,30 @@
 package com.shinjaehun.notesapp.activities
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.util.Patterns
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.shinjaehun.notesapp.R
 import com.shinjaehun.notesapp.adapters.NotesAdapter
 import com.shinjaehun.notesapp.databinding.ActivityMainBinding
 import com.shinjaehun.notesapp.entities.Note
@@ -27,6 +42,9 @@ class MainActivity : AppCompatActivity(), NotesListener {
         private const val REQUEST_CODE_ADD_NOTE = 1
         private const val REQUEST_CODE_UPDATE_NOTE = 2
         private const val REQUEST_CODE_SHOW_NOTES = 3
+        private const val REQUEST_CODE_SELECT_IMAGE = 4
+        private const val REQUEST_CODE_STORAGE_PERMISSION = 5
+
     }
 
     private lateinit var activityMainBinding: ActivityMainBinding
@@ -34,7 +52,7 @@ class MainActivity : AppCompatActivity(), NotesListener {
     private lateinit var notesViewModel: NotesViewModel
 //    private var notes: MutableList<Note> = mutableListOf()
 
-    private var timer: Timer? = null
+    private var dialogAddURL: AlertDialog? = null
 
 
     private var noteClickedPosition: Int = -1
@@ -94,7 +112,69 @@ class MainActivity : AppCompatActivity(), NotesListener {
                 })
             }
         })
+
+        activityMainBinding.imageAddNote.setOnClickListener {
+            startActivity(Intent(applicationContext, CreateNoteActivity::class.java))
+//            startActivityForResult(Intent(applicationContext, CreateNoteActivity::class.java), REQUEST_CODE_SELECT_IMAGE)
+        }
+
+        activityMainBinding.imageAddImage.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    applicationContext,
+                    android.Manifest.permission.READ_MEDIA_IMAGES)
+                != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    this@MainActivity,
+                    arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES),
+                    REQUEST_CODE_STORAGE_PERMISSION
+                )
+            } else {
+                selectImage()
+            }
+        }
+
+        activityMainBinding.imageAddWebLink.setOnClickListener {
+            showAddURLDialog()
+        }
     }
+
+    private fun selectImage(){
+        Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI).also {
+            it.type = "image/*"
+            startActivityForResult(it, REQUEST_CODE_SELECT_IMAGE)
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_STORAGE_PERMISSION && grantResults.size > 0) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                selectImage()
+            } else {
+                Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun getPathFromUri(contentUri: Uri): String {
+        // contentResolver와 cursor에 대해 공부 필요!
+        val filePath: String
+        val cursor = contentResolver.query(contentUri, null, null, null, null)
+        if (cursor == null) {
+            filePath = contentUri.path.toString()
+        } else {
+            cursor.moveToFirst()
+            val index = cursor.getColumnIndex("_data")
+            filePath = cursor.getString(index)
+            cursor.close()
+        }
+        return filePath
+    }
+
 
 //    override fun onStart() {
 //        super.onStart()
@@ -110,6 +190,47 @@ class MainActivity : AppCompatActivity(), NotesListener {
 //        startActivityForResult(intent, REQUEST_CODE_UPDATE_NOTE)
         startActivity(intent)
     }
+
+
+    private fun showAddURLDialog() {
+        if (dialogAddURL == null) {
+            val builder = AlertDialog.Builder(this@MainActivity)
+            val view : View = LayoutInflater.from(this).inflate(
+                R.layout.layout_add_url,
+                findViewById<ViewGroup>(R.id.layout_addUrlContainer)
+            )
+            builder.setView(view)
+            dialogAddURL = builder.create()
+            if (dialogAddURL!!.window != null) {
+                dialogAddURL!!.window!!.setBackgroundDrawable(ColorDrawable(0))
+            }
+
+            val inputURL = view.findViewById<EditText>(R.id.et_url)
+            inputURL.requestFocus()
+
+            view.findViewById<TextView>(R.id.textAdd).setOnClickListener {
+                if (inputURL.text.toString().trim().isEmpty()) {
+                    Toast.makeText(this@MainActivity, "Enter URL", Toast.LENGTH_SHORT).show()
+                } else if (!Patterns.WEB_URL.matcher(inputURL.text.toString()).matches()) {
+                    Toast.makeText(this@MainActivity, "Enter valid URL", Toast.LENGTH_SHORT).show()
+                } else {
+                    dialogAddURL!!.dismiss()
+                    val intent = Intent(applicationContext, CreateNoteActivity::class.java)
+                    intent.putExtra("isFromQuickActions", true)
+                    intent.putExtra("quickActionType", "URL")
+                    intent.putExtra("URL", inputURL.text.toString())
+                    startActivity(intent)
+                }
+            }
+
+            view.findViewById<TextView>(R.id.textCancel).setOnClickListener {
+                dialogAddURL!!.dismiss()
+            }
+        }
+
+        dialogAddURL!!.show()
+    }
+
 
 //    private fun observeNotes(requestCode: Int) {
 //        // 아니 씨발 viewmodel이 있고 LiveData로 notes를 저장하고 있는데 굳이 이렇게 원시적인 방법으로...
@@ -177,8 +298,8 @@ class MainActivity : AppCompatActivity(), NotesListener {
 //        })
 //    }
 
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        super.onActivityResult(requestCode, resultCode, data)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 //        if (requestCode == REQUEST_CODE_ADD_NOTE && resultCode == RESULT_OK) {
 //            observeNotes(REQUEST_CODE_ADD_NOTE)
 //        } else if (requestCode == REQUEST_CODE_UPDATE_NOTE && resultCode == RESULT_OK) {
@@ -186,5 +307,23 @@ class MainActivity : AppCompatActivity(), NotesListener {
 //                observeNotes(REQUEST_CODE_UPDATE_NOTE)
 //            }
 //        }
-//    }
+        if (requestCode == REQUEST_CODE_SELECT_IMAGE && resultCode == RESULT_OK) {
+            if (data != null) {
+                val selectedImageUri = data.data as Uri
+                if (selectedImageUri != null) {
+                    try {
+                        val selectedImagePath : String = getPathFromUri(selectedImageUri)
+                        val intent = Intent(applicationContext, CreateNoteActivity::class.java)
+                        intent.putExtra("isFromQuickActions", true)
+                        intent.putExtra("quickActionType", "image")
+                        intent.putExtra("imagePath", selectedImagePath)
+                        startActivity(intent)
+                    } catch(e: java.lang.Exception) {
+                        Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
+                    }
+
+                }
+            }
+        }
+    }
 }

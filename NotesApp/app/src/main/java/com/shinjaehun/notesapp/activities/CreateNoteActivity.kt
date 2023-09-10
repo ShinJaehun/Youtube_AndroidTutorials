@@ -11,6 +11,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
@@ -36,6 +37,8 @@ import kotlinx.coroutines.selects.select
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
+
+private const val TAG = "CreateNoteActivity"
 
 class CreateNoteActivity : AppCompatActivity() {
     companion object {
@@ -84,6 +87,27 @@ class CreateNoteActivity : AppCompatActivity() {
             activityCreateNoteBinding.imageDeleteImage.visibility = View.GONE
             selectedImagePath = ""
         }
+
+        if (intent.getBooleanExtra("isFromQuickActions", false)) {
+            Log.i(TAG, "from intent")
+            val type = intent.getStringExtra("quickActionType")
+            if (type != null) {
+                if (type == "image") {
+                    selectedImagePath = intent.getStringExtra("imagePath").toString()
+
+                    activityCreateNoteBinding.imageNote.setImageURI(Uri.parse(selectedImagePath))
+                    Log.i(TAG, "selectedImagePath: $selectedImagePath")
+
+                    activityCreateNoteBinding.imageNote.visibility = View.VISIBLE
+
+                    activityCreateNoteBinding.imageDeleteImage.visibility = View.VISIBLE
+                } else if (type == "URL") {
+                    activityCreateNoteBinding.textWebUrl.setText(intent.getStringExtra("URL").toString())
+                    activityCreateNoteBinding.layoutWebUrl.visibility = View.VISIBLE
+                }
+            }
+        }
+
         initMisc()
         setSubtitleIndicatorColor()
     }
