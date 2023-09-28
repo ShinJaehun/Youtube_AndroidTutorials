@@ -2,10 +2,13 @@ package com.shinjaehun.packyourbag.adapter
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.shinjaehun.packyourbag.CheckListActivity
+import com.shinjaehun.packyourbag.constants.MyConstants
 import com.shinjaehun.packyourbag.databinding.MainItemBinding
 
 class Adapter(
@@ -31,7 +34,15 @@ class Adapter(
             this.binding.img.setImageResource(images[position])
             this.binding.linearLayout.alpha = 0.8F
             this.binding.linearLayout.setOnClickListener {
-                Toast.makeText(inflater.context, "clicked on card", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(inflater.context, "clicked on card", Toast.LENGTH_SHORT).show()
+                val intent = Intent(inflater.context, CheckListActivity::class.java)
+                intent.putExtra(MyConstants.HEADER_SMALL, titles[position])
+                if (titles[position].equals(MyConstants.MY_SELECTIONS)) {
+                    intent.putExtra(MyConstants.SHOW_SMALL, MyConstants.FALSE_STRING)
+                } else {
+                    intent.putExtra(MyConstants.SHOW_SMALL, MyConstants.TRUE_STRING)
+                }
+                inflater.context.startActivity(intent)
             }
         }
     }
