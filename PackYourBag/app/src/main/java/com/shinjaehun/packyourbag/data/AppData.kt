@@ -1,8 +1,8 @@
 package com.shinjaehun.packyourbag.data
 
 import android.app.Application
-import android.util.Log
-import com.shinjaehun.packyourbag.constants.MyConstants
+import android.widget.Toast
+import com.shinjaehun.packyourbag.etc.MyConstants
 import com.shinjaehun.packyourbag.database.RoomDB
 import com.shinjaehun.packyourbag.models.Item
 
@@ -112,5 +112,44 @@ class AppData(
 //            }
 //        }
 //        Log.i(TAG, "Data added")
+//    }
+
+//    fun persistDataByCategory(category: String, onlyDelete: Boolean) {
+//        try {
+//            val list: List<Item> = deleteAndGetListByCategory(category, onlyDelete)
+//            if (!onlyDelete) {
+//                list.forEach {
+////                    database.itemDao().saveItem(it)
+//                }
+//                Toast.makeText(this, category + " Reset successfully", Toast.LENGTH_SHORT).show()
+//
+//            } else {
+//                Toast.makeText(applicationContext, category + " Reset successfully", Toast.LENGTH_SHORT).show()
+//            }
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            Toast.makeText(applicationContext, "Something went wrong", Toast.LENGTH_SHORT).show()
+//        }
+//    }
+//    private fun deleteAndGetListByCategory(category: String, onlyDelete: Boolean) : List<Item> {
+//        if (onlyDelete) {
+//            database.itemDao().deleteAllByCategoryAndAddedBy(category, MyConstants.SYSTEM_SMALL)
+//        } else {
+//            database.itemDao().deleteAllByCategory(category)
+//        }
+//
+//        when(category) {
+////            MyConstants.BABY_NEEDS_CAMEL_CASE -> return getBasicData()
+////            MyConstants.CLOTHING_CAMEL_CASE -> return getClothingData()
+////            MyConstants.PERSONAL_CARE_CAMEL_CASE -> return getClothingData()
+////            MyConstants.BABY_NEEDS_CAMEL_CASE -> return getClothingData()
+////            MyConstants.HEALTH_CAMEL_CASE -> return getClothingData()
+////            MyConstants.TECHNOLOGY_CAMEL_CASE -> return getClothingData()
+////            MyConstants.FOOD_CAMEL_CASE -> return getClothingData()
+////            MyConstants.BEACH_SUPPLIES_CAMEL_CASE -> return getClothingData()
+////            MyConstants.CAR_SUPPLIES_CAMEL_CASE -> return getClothingData()
+////            MyConstants.NEEDS_CAMEL_CASE -> return getClothingData()
+//            else -> return listOf()
+//        }
 //    }
 }

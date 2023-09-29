@@ -1,17 +1,7 @@
 package com.shinjaehun.packyourbag.viewmodel
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
-import com.shinjaehun.packyourbag.constants.MyConstants
-import com.shinjaehun.packyourbag.database.RoomDB
-import com.shinjaehun.packyourbag.models.Item
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 private const val TAG = "ItemViewModel"
 class ItemViewModel(

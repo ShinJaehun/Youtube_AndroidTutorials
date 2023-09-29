@@ -1,4 +1,4 @@
-package com.shinjaehun.packyourbag.constants
+package com.shinjaehun.packyourbag.etc
 
 class MyConstants {
     companion object {

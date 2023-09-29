@@ -1,16 +1,23 @@
 package com.shinjaehun.packyourbag
 
+import android.content.DialogInterface
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.shinjaehun.packyourbag.adapter.CheckListAdapter
-import com.shinjaehun.packyourbag.constants.MyConstants
+import com.shinjaehun.packyourbag.etc.MyConstants
 import com.shinjaehun.packyourbag.databinding.ActivityCheckListBinding
 import com.shinjaehun.packyourbag.interfaces.OnItemClick
 import com.shinjaehun.packyourbag.models.Item
@@ -54,7 +61,6 @@ class CheckListActivity : AppCompatActivity(), OnItemClick {
 //            Log.i(TAG, "activityitems: ${it.toString()}")
 //            updateRecycler(it!!)
 //        }
-
         checkListViewModel.items.observe(this, Observer {
             updateRecycler(it)
         })
@@ -77,6 +83,105 @@ class CheckListActivity : AppCompatActivity(), OnItemClick {
             }
         }
 
+    }
+
+    override fun onCreatePanelMenu(featureId: Int, menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.menu_one, menu)
+        if (header!!.equals(MyConstants.MY_SELECTIONS)) {
+            menu.getItem(0).setVisible(false)
+            menu.getItem(2).setVisible(false)
+            menu.getItem(3).setVisible(false)
+        } else if (header!!.equals(MyConstants.MY_LIST_CAMEL_CASE)) {
+            menu.getItem(1).setVisible(false)
+        }
+
+        val menuItem: MenuItem = menu.findItem(R.id.btnSearch)
+        val searchView : SearchView = menuItem.actionView as SearchView
+        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                var mFinalList : MutableList<Item> = mutableListOf()
+                if (!newText.isNullOrEmpty()) {
+                    checkListViewModel.items.value!!.forEach {
+                        if (it.itemname.toLowerCase().startsWith(newText.toLowerCase())) {
+                            mFinalList.add(it)
+                        }
+                    }
+                    updateRecycler(mFinalList)
+                } else {
+                    updateRecycler(checkListViewModel.items.value!!)
+                }
+                return false
+            }
+        })
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val intent = Intent(this, CheckListActivity::class.java)
+        when (item.itemId) {
+            R.id.btnMySelections -> {
+                intent.putExtra(MyConstants.HEADER_SMALL, MyConstants.MY_SELECTIONS)
+                intent.putExtra(MyConstants.SHOW_SMALL, MyConstants.FALSE_STRING)
+                startActivity(intent)
+                return true
+            }
+            R.id.btnCustomList -> {
+                intent.putExtra(MyConstants.HEADER_SMALL, MyConstants.MY_LIST_CAMEL_CASE)
+                intent.putExtra(MyConstants.SHOW_SMALL, MyConstants.TRUE_STRING)
+                startActivity(intent)
+                return true
+            }
+            R.id.btnDeleteDefault -> {
+                AlertDialog.Builder(this)
+                    .setTitle("Delete default data")
+                    .setMessage("Are you sure?\n\nAs this will delete the data provided by (Pack Your Bag) while installing...")
+                    .setPositiveButton("Confirm", DialogInterface.OnClickListener { dialog, i ->
+                        checkListViewModel.persistDataByCategory(header!!, true)
+                    })
+                    .setNegativeButton("Cancel", DialogInterface.OnClickListener { dialog, i ->
+
+                    })
+                    .setIcon(R.drawable.ic_alert)
+                    .show()
+                return true
+            }
+            R.id.btnReset -> {
+                AlertDialog.Builder(this)
+                    .setTitle("Reset to default")
+                    .setMessage("Are you sure?\n\nAs this will load the default data provided by (Pack Your Bag) and will delete the custom data you have added in (${header!!})")
+                    .setPositiveButton("Confirm", DialogInterface.OnClickListener { dialog, i ->
+                        checkListViewModel.persistDataByCategory(header!!, false)
+                    })
+                    .setNegativeButton("Cancel", DialogInterface.OnClickListener { dialog, i ->
+
+                    })
+                    .setIcon(R.drawable.ic_alert)
+                    .show()
+                return true
+            }
+            R.id.btnAboutUs -> {
+                val intent = Intent(this, AboutUSActivity::class.java)
+                startActivity(intent)
+                return true
+            }
+            R.id.btnExit -> {
+                this.finishAffinity()
+                Toast.makeText(
+                    applicationContext,
+                    "Pack your bag\nExit completed",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return true
+            }
+            else -> {
+                return super.onOptionsItemSelected(item)
+            }
+        }
     }
 
     private fun addNewItem(itemName: String) {

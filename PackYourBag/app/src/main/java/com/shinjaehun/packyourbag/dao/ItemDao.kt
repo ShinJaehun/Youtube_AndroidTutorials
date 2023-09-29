@@ -34,8 +34,8 @@ interface ItemDao {
     fun deleteAllSystemItems(addedby: String): Int
 
     @Query("delete from items where category = :category")
-    fun deleteAllByCategory(category: String): Int
+    suspend fun deleteAllByCategory(category: String)
 
     @Query("delete from items where category = :category and addedby = :addedby")
-    fun deleteAllByCategoryAndAddedBy(category: String, addedby: String): Int
+    suspend fun deleteAllByCategoryAndAddedBy(category: String, addedby: String)
 }

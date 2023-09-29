@@ -1,14 +1,11 @@
 package com.shinjaehun.packyourbag.adapter
 
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.shinjaehun.packyourbag.CheckListActivity
-import com.shinjaehun.packyourbag.constants.MyConstants
+import com.shinjaehun.packyourbag.etc.MyConstants
 import com.shinjaehun.packyourbag.databinding.MainItemBinding
 
 class Adapter(

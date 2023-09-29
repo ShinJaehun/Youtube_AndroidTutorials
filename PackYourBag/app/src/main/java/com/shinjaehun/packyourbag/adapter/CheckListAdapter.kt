@@ -11,7 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.shinjaehun.packyourbag.interfaces.OnItemClick
 import com.shinjaehun.packyourbag.R
-import com.shinjaehun.packyourbag.constants.MyConstants
+import com.shinjaehun.packyourbag.etc.MyConstants
 import com.shinjaehun.packyourbag.databinding.CheckListItemBinding
 import com.shinjaehun.packyourbag.models.Item
 

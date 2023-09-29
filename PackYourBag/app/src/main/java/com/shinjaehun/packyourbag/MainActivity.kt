@@ -1,23 +1,12 @@
 package com.shinjaehun.packyourbag
 
-import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.preference.PreferenceManager
-import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.room.Room
 import com.shinjaehun.packyourbag.adapter.Adapter
-import com.shinjaehun.packyourbag.constants.MyConstants
-import com.shinjaehun.packyourbag.data.AppData
-import com.shinjaehun.packyourbag.database.RoomDB
+import com.shinjaehun.packyourbag.etc.MyConstants
 import com.shinjaehun.packyourbag.databinding.ActivityMainBinding
-import com.shinjaehun.packyourbag.databinding.MainItemBinding
-import com.shinjaehun.packyourbag.viewmodel.ItemViewModel
-import com.shinjaehun.packyourbag.viewmodel.ItemViewModelFactory
 
 private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
