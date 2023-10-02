@@ -9,18 +9,22 @@ import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import android.widget.TextView
+
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import com.shinjaehun.quizapp.databinding.ActivityQuizQuestionsBinding
+import com.shinjaehun.quizapp.viewmodels.QuizQuestionsViewModel
 
 class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
 
     private lateinit var binding: ActivityQuizQuestionsBinding
+    private lateinit var viewModel: QuizQuestionsViewModel
 
-    private var mCurrentPosition: Int = 1
-    private var mQuestionsList: ArrayList<Question>? = null
-    private var mSelectedOptionPosition : Int = 0
-    private var mCorrectAnswers: Int = 0
+//    private var mCurrentPosition: Int = 1
+//    private var mQuestionsList: ArrayList<Question>? = null
+//    private var mSelectedOptionPosition : Int = 0
+//    private var mCorrectAnswers: Int = 0
     private var mUserName: String? = null
 
     companion object {
@@ -34,15 +38,18 @@ class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
 
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN // deprecated
 
+        viewModel = QuizQuestionsViewModel()
+
+//        viewModel = QuizQuestionsViewModel()
 
 //        val questionsList = Constants.getQuestions()
 //        Log.i(TAG, "${questionsList.size}")
 
         mUserName = intent.getStringExtra(Constants.USER_NAME)
 
-        mQuestionsList = Constants.getQuestions()
-
+//        mQuestionsList = Constants.getQuestions()
         setQuestion()
+
 //        val currentPosition = 1
 //        val question: Question? = questionsList[currentPosition - 1]
 
@@ -64,19 +71,22 @@ class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
 
     private fun setQuestion() {
 //        mCurrentPosition = 1
-        val question = mQuestionsList!![mCurrentPosition - 1]
+//        val question = mQuestionsList!![mCurrentPosition - 1]
+
+        val question = viewModel.getQuestion()
 
         defaultOptionsView()
 
-        if (mCurrentPosition == mQuestionsList!!.size) {
+        if (viewModel.currentPosition.value == viewModel.getTotalQuestions()) {
             binding.btnSubmit.text = "Finish"
         } else {
             binding.btnSubmit.text = "Submit"
         }
 
-        binding.progressBar.progress = mCurrentPosition
-        binding.tvProgress.text = "$mCurrentPosition / ${binding.progressBar.max}"
-        binding.tvQuestion.text = question!!.question
+        binding.progressBar.progress = viewModel.currentPosition.value!!
+        binding.progressBar.max = viewModel.getTotalQuestions()
+        binding.tvProgress.text = "${viewModel.currentPosition.value}/${binding.progressBar.max}"
+        binding.tvQuestion.text = question.question
         binding.ivImage.setImageResource(question.image)
         binding.tvOptionOne.text = question.optionOne
         binding.tvOptionTwo.text = question.optionTwo
@@ -101,22 +111,27 @@ class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.tv_option_one -> {
-                selectedOptionView(binding.tvOptionOne, 1)
+                viewModel.userInput(1)
+                selectedOptionView(binding.tvOptionOne)
             }
             R.id.tv_option_two -> {
-                selectedOptionView(binding.tvOptionTwo, 2)
+                viewModel.userInput(2)
+                selectedOptionView(binding.tvOptionTwo)
             }
             R.id.tv_option_three -> {
-                selectedOptionView(binding.tvOptionThree, 3)
+                viewModel.userInput(3)
+                selectedOptionView(binding.tvOptionThree)
             }
             R.id.tv_option_four -> {
-                selectedOptionView(binding.tvOptionFour, 4)
+                viewModel.userInput(4)
+
+                selectedOptionView(binding.tvOptionFour)
             }
             R.id.btn_submit -> {
-                if (mSelectedOptionPosition == 0) {
-                    mCurrentPosition++ // 다른 문제로 넘어간다는겨?
+                if (viewModel.selectedOptionPosition.value == 0) {
+                    viewModel.nextQuestion() // 다른 문제로 넘어간다는겨?
                     when {
-                        mCurrentPosition <= mQuestionsList!!.size -> {
+                        viewModel.isGameContinue() -> {
                             setQuestion()
                         }
                         else -> {
@@ -127,26 +142,42 @@ class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
 //                            ).show()
                             val intent = Intent(this, ResultActivity::class.java)
                             intent.putExtra(Constants.USER_NAME, mUserName)
-                            intent.putExtra(Constants.CORRECT_ANSWERS, mCorrectAnswers)
-                            intent.putExtra(Constants.TOTAL_QUESTIONS, mQuestionsList!!.size)
+                            intent.putExtra(Constants.CORRECT_ANSWERS, viewModel.correctAnswers.value)
+                            intent.putExtra(Constants.TOTAL_QUESTIONS, viewModel.getTotalQuestions())
                             startActivity(intent)
                             finish()
                         }
                     }
                 } else {
-                    val question = mQuestionsList?.get(mCurrentPosition - 1)
-                    if (question!!.correctAnswer != mSelectedOptionPosition) {
-                        answerView(mSelectedOptionPosition, R.drawable.wrong_option_border_bg)
+//                    Log.i(TAG, "selectedOptionNumber: $selectedOptionNumber")
+                    if (!viewModel.isUserCorrect()) {
+                        Log.i(TAG, "selectedOptionPosition: ${viewModel.selectedOptionPosition.value!!}")
+                        answerView(viewModel.selectedOptionPosition.value!!, R.drawable.wrong_option_border_bg)
                     } else {
-                        mCorrectAnswers++
+                        viewModel.increaseCorrectAnswer()
                     }
-                    answerView(question.correctAnswer, R.drawable.correct_option_border_bg)
-                    if (mCurrentPosition == mQuestionsList!!.size) {
+                    answerView(viewModel.getQuestion().correctAnswer, R.drawable.correct_option_border_bg)
+                    if(viewModel.isGameFinish()) {
                         binding.btnSubmit.text = "Finish"
                     } else {
                         binding.btnSubmit.text = "Go to next question"
                     }
-                    mSelectedOptionPosition = 0
+
+                    viewModel.userInput(0)
+
+//                    val question = mQuestionsList?.get(mCurrentPosition - 1)
+//                    if (question!!.correctAnswer != mSelectedOptionPosition) {
+//                        answerView(mSelectedOptionPosition, R.drawable.wrong_option_border_bg)
+//                    } else {
+//                        mCorrectAnswers++
+//                    }
+//                    answerView(question.correctAnswer, R.drawable.correct_option_border_bg)
+//                    if (mCurrentPosition == mQuestionsList!!.size) {
+//                        binding.btnSubmit.text = "Finish"
+//                    } else {
+//                        binding.btnSubmit.text = "Go to next question"
+//                    }
+//                    mSelectedOptionPosition = 0
                 }
             }
         }
@@ -169,13 +200,10 @@ class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
         }
     }
 
-    private fun selectedOptionView(tv: TextView, selectedOptionNumber: Int) {
+    private fun selectedOptionView(tv: TextView) {
         defaultOptionsView()
 
-        mSelectedOptionPosition = selectedOptionNumber
-
         tv.setTextColor(Color.parseColor("#363a43"))
-//        tv.typeface = Typeface.DEFAULT_BOLD
         tv.setTypeface(tv.typeface, Typeface.BOLD)
         tv.background = ContextCompat.getDrawable(this, R.drawable.selected_option_border_bg)
     }
