@@ -46,10 +46,12 @@ class QuizQuestionsViewModel: ViewModel() {
     }
 
     fun isUserCorrect() : Boolean {
-        Log.i(TAG, "selectedOptionNumber: ${_selectedOptionPosition.value}, correctAnswer: ${getQuestion().correctAnswer}")
-        return if (_selectedOptionPosition.value == getQuestion().correctAnswer) {
-            true
-        } else false
+//        Log.i(TAG, "selectedOptionNumber: ${_selectedOptionPosition.value}, correctAnswer: ${getQuestion().correctAnswer}")
+//        return if (_selectedOptionPosition.value == getQuestion().correctAnswer) {
+//            true
+//        } else false
+        return _selectedOptionPosition.value == getQuestion().correctAnswer
+
     }
 
     fun increaseCorrectAnswer() {

@@ -77,7 +77,7 @@ class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
 
         defaultOptionsView()
 
-        if (viewModel.currentPosition.value == viewModel.getTotalQuestions()) {
+        if (viewModel.isGameFinish()) {
             binding.btnSubmit.text = "Finish"
         } else {
             binding.btnSubmit.text = "Submit"
@@ -124,7 +124,6 @@ class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
             }
             R.id.tv_option_four -> {
                 viewModel.userInput(4)
-
                 selectedOptionView(binding.tvOptionFour)
             }
             R.id.btn_submit -> {
@@ -151,7 +150,7 @@ class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
                 } else {
 //                    Log.i(TAG, "selectedOptionNumber: $selectedOptionNumber")
                     if (!viewModel.isUserCorrect()) {
-                        Log.i(TAG, "selectedOptionPosition: ${viewModel.selectedOptionPosition.value!!}")
+//                        Log.i(TAG, "selectedOptionPosition: ${viewModel.selectedOptionPosition.value!!}")
                         answerView(viewModel.selectedOptionPosition.value!!, R.drawable.wrong_option_border_bg)
                     } else {
                         viewModel.increaseCorrectAnswer()
