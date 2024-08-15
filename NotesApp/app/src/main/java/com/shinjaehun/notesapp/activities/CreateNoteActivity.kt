@@ -133,7 +133,7 @@ class CreateNoteActivity : AppCompatActivity() {
         }
 
     }
-    private fun saveNote() {
+        private fun saveNote() {
         val title = activityCreateNoteBinding.etNoteTitle.text.toString()
         val subtitle = activityCreateNoteBinding.etNoteSubtitle.text.toString()
         val noteText = activityCreateNoteBinding.etNote.text.toString()
