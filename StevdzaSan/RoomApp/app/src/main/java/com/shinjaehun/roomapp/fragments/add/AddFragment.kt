@@ -14,6 +14,7 @@ import com.shinjaehun.roomapp.R
 import com.shinjaehun.roomapp.model.User
 import com.shinjaehun.roomapp.viewmodel.UserViewModel
 import com.shinjaehun.roomapp.databinding.FragmentAddBinding
+import com.shinjaehun.roomapp.model.Address
 
 class AddFragment : Fragment() {
 
@@ -42,9 +43,11 @@ class AddFragment : Fragment() {
         val firstName = binding.addFirstNameEt.text.toString()
         val lastName = binding.addLastNameEt.text.toString()
         val age = binding.addAgeEt.text
+        val streetName = binding.streetNameEt.text.toString()
+        val streetNumber = binding.streetNumberEt.text
 
         if (inputCheck(firstName, lastName, age)) {
-            val user = User(0, firstName, lastName, Integer.parseInt(age.toString()))
+            val user = User(0, firstName, lastName, Integer.parseInt(age.toString()), Address(streetName, Integer.parseInt(streetNumber.toString())))
             mUserViewModel.addUser(user)
             Toast.makeText(requireContext(), "successfully added!", Toast.LENGTH_LONG).show()
             findNavController().navigate(R.id.action_addFragment_to_listFragment)

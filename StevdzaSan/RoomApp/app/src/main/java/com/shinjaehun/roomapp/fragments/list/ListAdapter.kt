@@ -29,6 +29,8 @@ class ListAdapter: RecyclerView.Adapter<ListAdapter.MyViewHolder>() {
                 firstNameTxt.text = currentItem.firstName
                 lastNameTxt.text = currentItem.lastName
                 ageTxt.text = currentItem.age.toString()
+                streetNameTxt.text = currentItem.address.streetName
+                streetNumberTxt.text = currentItem.address.streetNumber.toString()
 
                 rowLayout.setOnClickListener {
                     val action = ListFragmentDirections.actionListFragmentToUpdateFragment(currentItem)

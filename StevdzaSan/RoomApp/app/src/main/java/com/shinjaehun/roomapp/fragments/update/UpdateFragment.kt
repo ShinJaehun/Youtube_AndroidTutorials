@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.shinjaehun.roomapp.R
 import com.shinjaehun.roomapp.databinding.FragmentUpdateBinding
+import com.shinjaehun.roomapp.model.Address
 import com.shinjaehun.roomapp.model.User
 import com.shinjaehun.roomapp.viewmodel.UserViewModel
 
@@ -38,6 +39,8 @@ class UpdateFragment : Fragment() {
         binding.updateFirstNameEt.setText(args.currentUser.firstName)
         binding.updateLastNameEt.setText(args.currentUser.lastName)
         binding.updateAgeEt.setText(args.currentUser.age.toString())
+        binding.updateStreetNameEt.setText(args.currentUser.address.streetName)
+        binding.updateStreetNumberEt.setText(args.currentUser.address.streetNumber.toString())
 
         binding.updateBtn.setOnClickListener {
             updateItem()
@@ -69,9 +72,11 @@ class UpdateFragment : Fragment() {
         val firstName = binding.updateFirstNameEt.text.toString()
         val lastName = binding.updateLastNameEt.text.toString()
         val age = Integer.parseInt(binding.updateAgeEt.text.toString())
+        val streetName = binding.updateStreetNameEt.text.toString()
+        val streetNumber = Integer.parseInt(binding.updateStreetNumberEt.text.toString())
 
         if (inputCheck(firstName, lastName, binding.updateAgeEt.text)) {
-            val updatedUser = User(args.currentUser.id, firstName, lastName, age)
+            val updatedUser = User(args.currentUser.id, firstName, lastName, age, Address(streetName, streetNumber))
             mUserViewModel.updateUser(updatedUser)
             Toast.makeText(requireContext(), "updated successfully", Toast.LENGTH_SHORT).show()
             findNavController().navigate(R.id.action_updateFragment_to_listFragment)

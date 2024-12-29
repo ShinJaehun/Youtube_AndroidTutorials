@@ -2,10 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rowLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="24sp"
-    android:id="@+id/rowLayout">
+    android:padding="24sp">
 
     <TextView
         android:id="@+id/id_txt"
@@ -22,10 +22,10 @@
         android:id="@+id/firstName_txt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="4dp"
         android:text="John"
         android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/id_txt"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -34,9 +34,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="6dp"
+        android:layout_marginTop="4dp"
         android:text="Doe"
         android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/firstName_txt"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -45,10 +45,32 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
         android:text="(25)"
         android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/lastName_txt"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/streetName_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        android:text="제주시 외도일동 납읍로"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/id_txt"
+        app:layout_constraintTop_toBottomOf="@+id/firstName_txt" />
+
+    <TextView
+        android:id="@+id/streetNumber_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="49"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/streetName_txt"
+        app:layout_constraintTop_toBottomOf="@+id/firstName_txt" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
