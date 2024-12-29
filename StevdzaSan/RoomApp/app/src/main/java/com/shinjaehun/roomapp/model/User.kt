@@ -1,5 +1,6 @@
 package com.shinjaehun.roomapp.model
 
+import android.graphics.Bitmap
 import android.os.Parcelable
 import androidx.room.Embedded
 import androidx.room.Entity
@@ -17,7 +18,8 @@ data class User (
     val lastName: String,
     val age: Int,
     @Embedded
-    val address: Address // Embedded class도 Parcelize해야 정상 동작함!
+    val address: Address, // Embedded class도 Parcelize해야 정상 동작함!
+    val profilePhoto: Bitmap
 ): Parcelable
 
 @Parcelize

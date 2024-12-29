@@ -63,4 +63,6 @@ dependencies {
 
     implementation(libs.coroutines.android)
 
+    implementation("io.coil-kt.coil3:coil:3.0.4")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.4")
 }

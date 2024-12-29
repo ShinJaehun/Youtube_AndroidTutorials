@@ -32,32 +32,32 @@ class AddFragment : Fragment() {
 
         mUserViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
 
-        binding.addBtn.setOnClickListener{
-            insertDataToDatabase()
-        }
+//        binding.addBtn.setOnClickListener{
+//            insertDataToDatabase()
+//        }
 
         return binding.root
     }
 
-    private fun insertDataToDatabase() {
-        val firstName = binding.addFirstNameEt.text.toString()
-        val lastName = binding.addLastNameEt.text.toString()
-        val age = binding.addAgeEt.text
-        val streetName = binding.streetNameEt.text.toString()
-        val streetNumber = binding.streetNumberEt.text
-
-        if (inputCheck(firstName, lastName, age)) {
-            val user = User(0, firstName, lastName, Integer.parseInt(age.toString()), Address(streetName, Integer.parseInt(streetNumber.toString())))
-            mUserViewModel.addUser(user)
-            Toast.makeText(requireContext(), "successfully added!", Toast.LENGTH_LONG).show()
-            findNavController().navigate(R.id.action_addFragment_to_listFragment)
-        } else {
-            Toast.makeText(requireContext(), "fill out all fields!", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun inputCheck(firstName: String, lastName: String, age: Editable): Boolean {
-        return !(TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName) && age.isEmpty())
-    }
+//    private fun insertDataToDatabase() {
+//        val firstName = binding.addFirstNameEt.text.toString()
+//        val lastName = binding.addLastNameEt.text.toString()
+//        val age = binding.addAgeEt.text
+//        val streetName = binding.streetNameEt.text.toString()
+//        val streetNumber = binding.streetNumberEt.text
+//
+//        if (inputCheck(firstName, lastName, age)) {
+//            val user = User(0, firstName, lastName, Integer.parseInt(age.toString()), Address(streetName, Integer.parseInt(streetNumber.toString())))
+//            mUserViewModel.addUser(user)
+//            Toast.makeText(requireContext(), "successfully added!", Toast.LENGTH_LONG).show()
+//            findNavController().navigate(R.id.action_addFragment_to_listFragment)
+//        } else {
+//            Toast.makeText(requireContext(), "fill out all fields!", Toast.LENGTH_LONG).show()
+//        }
+//    }
+//
+//    private fun inputCheck(firstName: String, lastName: String, age: Editable): Boolean {
+//        return !(TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName) && age.isEmpty())
+//    }
 
 }

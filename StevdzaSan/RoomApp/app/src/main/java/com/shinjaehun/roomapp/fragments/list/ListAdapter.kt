@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import coil3.load
 import com.shinjaehun.roomapp.model.User
 import com.shinjaehun.roomapp.databinding.CustomRowBinding
 
@@ -25,7 +26,8 @@ class ListAdapter: RecyclerView.Adapter<ListAdapter.MyViewHolder>() {
         val currentItem = userList[position]
         holder.apply {
             binding.apply {
-                idTxt.text = currentItem.id.toString()
+//                idTxt.text = currentItem.id.toString()
+                photoIv.load(currentItem.profilePhoto)
                 firstNameTxt.text = currentItem.firstName
                 lastNameTxt.text = currentItem.lastName
                 ageTxt.text = currentItem.age.toString()
