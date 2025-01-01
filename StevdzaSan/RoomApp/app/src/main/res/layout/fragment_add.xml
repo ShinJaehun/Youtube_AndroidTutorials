@@ -73,6 +73,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/streetName_et" />
 
+    <ImageView
+        android:id="@+id/profilePhoto_iv"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="437dp"
+        tools:src="@tools:sample/avatars"
+        app:layout_constraintTop_toBottomOf="@+id/streetNumber_et" />
 
     <Button
         android:id="@+id/add_btn"
@@ -83,6 +93,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/streetNumber_et" />
+        app:layout_constraintTop_toBottomOf="@+id/profilePhoto_iv" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

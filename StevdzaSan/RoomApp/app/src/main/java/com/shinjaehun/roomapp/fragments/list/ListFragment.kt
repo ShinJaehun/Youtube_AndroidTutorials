@@ -45,10 +45,10 @@ class ListFragment : Fragment() {
 
         mUserViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
 
-        lifecycleScope.launch {
-            val person = User(0, "Shin", "Jaehun", 49, Address("Aran 4gil", 41), getBitmap())
-            mUserViewModel.addUser(person)
-        }
+//        lifecycleScope.launch {
+//            val person = User(0, "Shin", "Jaehun", 49, Address("Aran 4gil", 41), getBitmap())
+//            mUserViewModel.addUser(person)
+//        }
 
         mUserViewModel.readAllData.observe(viewLifecycleOwner, Observer {users ->
             adapter.setData(users)
