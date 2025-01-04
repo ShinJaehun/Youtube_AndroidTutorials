@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">FetchDataFromWeb</string>
+    <string name="base_currency">KRW: 1.00</string>
+    <string name="usd">USD:</string>
+    <string name="euro">EURO:</string>
+    <string name="jpy">JPY:</string>
+</resources>
