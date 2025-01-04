@@ -11,7 +11,7 @@
         android:id="@+id/updateFirstName_et"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="50dp"
         android:ems="10"
         android:hint="First Name"
         android:inputType="textPersonName"
@@ -72,6 +72,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/updateStreetName_et" />
 
+
+    <ImageView
+        android:id="@+id/updateProfilePhoto_iv"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/updateStreetNumber_et"
+        app:srcCompat="@drawable/ic_account" />
+
+
     <Button
         android:id="@+id/update_btn"
         android:layout_width="match_parent"
@@ -81,12 +93,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/updateStreetNumber_et" />
+        app:layout_constraintTop_toBottomOf="@+id/updateProfilePhoto_iv" />
 
     <ImageView
         android:id="@+id/delete_iv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:layout_marginTop="32dp"
         android:src="@drawable/ic_baseline_delete_24"
         app:layout_constraintEnd_toEndOf="parent"

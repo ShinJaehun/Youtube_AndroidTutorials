@@ -11,7 +11,7 @@
         android:id="@+id/addFirstName_et"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="60dp"
         android:ems="10"
         android:hint="First Name"
         android:inputType="textPersonName"
@@ -75,14 +75,13 @@
 
     <ImageView
         android:id="@+id/profilePhoto_iv"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_marginTop="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="437dp"
-        tools:src="@tools:sample/avatars"
-        app:layout_constraintTop_toBottomOf="@+id/streetNumber_et" />
+        app:layout_constraintTop_toBottomOf="@+id/streetNumber_et"
+        app:srcCompat="@drawable/ic_account" />
 
     <Button
         android:id="@+id/add_btn"

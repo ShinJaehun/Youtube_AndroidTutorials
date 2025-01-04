@@ -85,8 +85,8 @@ class AddFragment : Fragment() {
             requireContext().contentResolver.openInputStream(Uri.parse(binding.profilePhotoIv.tag.toString()))?.use { inputStream ->
                 BitmapFactory.decodeStream(inputStream, null, this)
             }
-            val targetW: Int = 100
-            val targetH: Int = 100
+            val targetW: Int = 150
+            val targetH: Int = 150
             val scaleFactor: Int = Math.min(outWidth / targetW, outHeight / targetH)
             inJustDecodeBounds = false
             inSampleSize = scaleFactor
@@ -94,7 +94,6 @@ class AddFragment : Fragment() {
 
         requireContext().contentResolver.openInputStream(Uri.parse(binding.profilePhotoIv.tag.toString()))?.use { inputStream ->
             BitmapFactory.decodeStream(inputStream, null, bmOptions)?.also { bitmap ->
-
 
                 lifecycleScope.launch {
                     if (inputCheck(firstName, lastName, age)) {
