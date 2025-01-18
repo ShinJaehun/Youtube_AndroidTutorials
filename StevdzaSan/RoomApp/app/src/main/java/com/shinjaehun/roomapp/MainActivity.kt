@@ -1,6 +1,9 @@
 package com.shinjaehun.roomapp
 
 import android.os.Bundle
+import android.view.Menu
+import android.widget.SearchView
+import android.widget.Toolbar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -13,6 +16,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.shinjaehun.roomapp.databinding.ActivityMainBinding
 import com.shinjaehun.roomapp.databinding.FragmentAddBinding
+import com.shinjaehun.roomapp.viewmodel.UserViewModel
 
 class ManActivity : AppCompatActivity() {
 
@@ -27,7 +31,6 @@ class ManActivity : AppCompatActivity() {
         }
 
 //        setupActionBarWithNavController(findNavController(R.id.fragment))
-
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -35,4 +38,5 @@ class ManActivity : AppCompatActivity() {
 
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
+
 }

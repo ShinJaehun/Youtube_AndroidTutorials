@@ -4,8 +4,17 @@ import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -26,11 +35,12 @@ import com.shinjaehun.roomapp.model.Address
 import com.shinjaehun.roomapp.model.User
 import kotlinx.coroutines.launch
 
-class ListFragment : Fragment() {
+class ListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     private var _binding: FragmentListBinding? = null
     private val binding get() = _binding!!
     private lateinit var mUserViewModel : UserViewModel
+    private val adapter : ListAdapter by lazy { ListAdapter() }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,7 +48,7 @@ class ListFragment : Fragment() {
     ): View? {
         _binding = FragmentListBinding.inflate(inflater, container, false)
 
-        val adapter = ListAdapter()
+//        val adapter = ListAdapter()
         val recyclerView = binding.recyclerview
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -58,6 +68,24 @@ class ListFragment : Fragment() {
             findNavController().navigate(R.id.action_listFragment_to_addFragment)
         }
 
+        (activity as AppCompatActivity).setSupportActionBar((activity as AppCompatActivity).findViewById(R.id.toolbar))
+
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object: MenuProvider{
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.main_menu, menu)
+
+                val searchView = menu.findItem(R.id.menu_search).actionView as SearchView
+                searchView.isSubmitButtonEnabled = true
+                searchView.setOnQueryTextListener(this@ListFragment)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return true
+            }
+
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
         return binding.root
     }
 
@@ -76,4 +104,24 @@ class ListFragment : Fragment() {
         return bitmap
     }
 
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        return true
+    }
+
+    override fun onQueryTextChange(query: String?): Boolean {
+        if(query != null) {
+            searchDatabase(query)
+        }
+        return true
+    }
+
+    private fun searchDatabase(query: String) {
+        val searchQuery = "%$query%"
+
+        mUserViewModel.searchUser(searchQuery).observe(this, { list ->
+            list.let {
+                adapter.setData(it)
+            }
+        })
+    }
 }

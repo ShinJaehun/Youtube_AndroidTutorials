@@ -3,6 +3,7 @@ package com.shinjaehun.roomapp.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.shinjaehun.roomapp.data.UserDatabase
 import com.shinjaehun.roomapp.repository.UserRepository
@@ -18,7 +19,7 @@ class UserViewModel(application: Application): AndroidViewModel(application) {
     init {
         val userDao = UserDatabase.getDatabase(application).userDao()
         repository = UserRepository(userDao)
-        readAllData = repository.readAllData
+        readAllData = repository.readAllData.asLiveData()
     }
 
     fun addUser(user: User) {
@@ -44,4 +45,8 @@ class UserViewModel(application: Application): AndroidViewModel(application) {
             repository.deleteAllUsers()
         }
     }
+
+    fun searchUser(searchQuery: String): LiveData<List<User>> =
+        repository.searchUser(searchQuery).asLiveData()
+
 }
