@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.shinjaehun.mvvmnotefirebase.R
 import com.shinjaehun.mvvmnotefirebase.data.model.Note
 import com.shinjaehun.mvvmnotefirebase.databinding.FragmentNoteListingBinding
@@ -32,20 +34,20 @@ class NoteListingFragment : Fragment() {
         NoteListingAdapter(
             onItemClicked = { pos, item ->
                 findNavController().navigate(R.id.action_noteListingFragment_to_noteDetailFragment, Bundle().apply {
-                    putString("type", "view")
+//                    putString("type", "view")
                     putParcelable("note", item)
                 })
             },
-            onEditClicked = { pos, item ->
-                findNavController().navigate(R.id.action_noteListingFragment_to_noteDetailFragment, Bundle().apply {
-                    putString("type", "edit")
-                    putParcelable("note", item)
-                })
-            },
-            onDeleteClicked = { pos, item ->
-                deletePosition = pos
-                viewModel.deleteNote(item)
-            }
+//            onEditClicked = { pos, item ->
+//                findNavController().navigate(R.id.action_noteListingFragment_to_noteDetailFragment, Bundle().apply {
+//                    putString("type", "edit")
+//                    putParcelable("note", item)
+//                })
+//            },
+//            onDeleteClicked = { pos, item ->
+//                deletePosition = pos
+//                viewModel.deleteNote(item)
+//            }
         )
     }
 
@@ -60,6 +62,8 @@ class NoteListingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.recyclerView.layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL)
         binding.recyclerView.adapter = adapter
 
         binding.recyclerView.itemAnimator = null // delete note bug fix
@@ -97,25 +101,26 @@ class NoteListingFragment : Fragment() {
             }
         }
 
-        viewModel.deleteNote.observe(viewLifecycleOwner) {state ->
-            when(state) {
-                is UiState.Loading -> {
-                    binding.progressBar.show()
-                }
-                is UiState.Failure -> {
-                    binding.progressBar.hide()
-                    toast(state.error)
-                }
-                is UiState.Success -> {
-                    binding.progressBar.hide()
-//                    if (deletePosition != -1) {
-//                        list.removeAt(deletePosition)
-//                        adapter.updateList(list)
-//                    }
-                    toast(state.data)
-                    adapter.removeItem(deletePosition)
-                }
-            }
-        }
+        // no more deleting in note listing fragment
+//        viewModel.deleteNote.observe(viewLifecycleOwner) {state ->
+//            when(state) {
+//                is UiState.Loading -> {
+//                    binding.progressBar.show()
+//                }
+//                is UiState.Failure -> {
+//                    binding.progressBar.hide()
+//                    toast(state.error)
+//                }
+//                is UiState.Success -> {
+//                    binding.progressBar.hide()
+////                    if (deletePosition != -1) {
+////                        list.removeAt(deletePosition)
+////                        adapter.updateList(list)
+////                    }
+//                    toast(state.data)
+//                    adapter.removeItem(deletePosition)
+//                }
+//            }
+//        }
     }
 }

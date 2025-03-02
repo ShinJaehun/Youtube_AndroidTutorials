@@ -23,8 +23,12 @@ class NoteViewModel @Inject constructor(
     val notes: LiveData<UiState<List<Note>>>
         get() = _notes
 
-    val _addNote = MutableLiveData<UiState<String>>()
-    val addNote: LiveData<UiState<String>>
+//    val _addNote = MutableLiveData<UiState<String>>()
+//    val addNote: LiveData<UiState<String>>
+//        get() = _addNote
+
+    val _addNote = MutableLiveData<UiState<Pair<Note, String>>>()
+    val addNote: LiveData<UiState<Pair<Note, String>>>
         get() = _addNote
 
     val _updateNote = MutableLiveData<UiState<String>>()
@@ -68,7 +72,7 @@ class NoteViewModel @Inject constructor(
         viewModelScope.launch {
             _updateNote.value = UiState.Loading
 
-            repository.addNote(note) {
+            repository.updateNote(note) {
                 _updateNote.value = it
             }
         }

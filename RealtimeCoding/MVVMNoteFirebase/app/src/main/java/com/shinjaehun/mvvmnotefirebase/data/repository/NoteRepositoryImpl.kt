@@ -61,12 +61,28 @@ class NoteRepositoryImpl(
 
     }
 
-    override fun addNote(note: Note, result: (UiState<String>) -> Unit) {
-//        database.collection(FirestoreTables.NOTE)
-//            .add(note)
+//    override fun addNote(note: Note, result: (UiState<String>) -> Unit) {
+////        database.collection(FirestoreTables.NOTE)
+////            .add(note)
+////            .addOnSuccessListener {
+////                result.invoke(
+////                    UiState.Success(it.id)
+////                )
+////            }
+////            .addOnFailureListener {
+////                result.invoke(
+////                    UiState.Failure(
+////                        it.localizedMessage
+////                    )
+////                )
+////            }
+//
+//        val document = database.collection(FirestoreTables.NOTE).document()
+//        note.id = document.id
+//        document.set(note)
 //            .addOnSuccessListener {
 //                result.invoke(
-//                    UiState.Success(it.id)
+//                    UiState.Success("Note has been created successfully")
 //                )
 //            }
 //            .addOnFailureListener {
@@ -76,13 +92,15 @@ class NoteRepositoryImpl(
 //                    )
 //                )
 //            }
+//    }
 
+    override fun addNote(note: Note, result: (UiState<Pair<Note, String>>) -> Unit) {
         val document = database.collection(FirestoreTables.NOTE).document()
         note.id = document.id
         document.set(note)
             .addOnSuccessListener {
                 result.invoke(
-                    UiState.Success("Note has been created successfully")
+                    UiState.Success(Pair(note, "Note has been created successfully"))
                 )
             }
             .addOnFailureListener {
