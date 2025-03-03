@@ -1,4 +1,4 @@
-package com.shinjaehun.mvvmnotefirebase.note
+package com.shinjaehun.mvvmnotefirebase.ui.note
 
 import android.os.Build
 import android.os.Bundle
@@ -266,6 +266,9 @@ class NoteDetailFragment : Fragment() {
             @Suppress("DEPRECATION")
             objNote = arguments?.getParcelable("note") as? Note
         }
+
+        binding.tags.layoutParams.height = 40.dpToPx
+
         objNote?.let { note ->
             binding.title.setText(note.title)
             binding.date.setText(sdf.format(note.date))
