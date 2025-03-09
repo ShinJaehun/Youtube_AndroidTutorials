@@ -68,11 +68,18 @@ dependencies {
     implementation(libs.firebase.bom)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.storage.ktx)
 
     // navigation
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
     implementation(libs.gson)
+
+
+    //coil
+    implementation(libs.coil3.coil)
+    implementation(libs.coil3.coil.network.okhttp)
+
 
 }

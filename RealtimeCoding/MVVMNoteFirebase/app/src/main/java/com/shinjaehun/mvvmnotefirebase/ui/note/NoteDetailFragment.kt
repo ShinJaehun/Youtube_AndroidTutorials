@@ -1,19 +1,26 @@
 package com.shinjaehun.mvvmnotefirebase.ui.note
 
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
+import androidx.core.net.toUri
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
 import com.shinjaehun.mvvmnotefirebase.R
 import com.shinjaehun.mvvmnotefirebase.data.model.Note
 import com.shinjaehun.mvvmnotefirebase.databinding.FragmentNoteDetailBinding
+import com.shinjaehun.mvvmnotefirebase.ui.auth.AuthViewModel
 import com.shinjaehun.mvvmnotefirebase.util.UiState
 import com.shinjaehun.mvvmnotefirebase.util.addChip
 import com.shinjaehun.mvvmnotefirebase.util.createDialog
@@ -31,10 +38,29 @@ private const val TAG = "NoteDetailFragment"
 class NoteDetailFragment : Fragment() {
 
     private lateinit var binding: FragmentNoteDetailBinding
-    val viewModel : NoteViewModel by viewModels()
-//    var isEdit = false
+    val noteViewModel : NoteViewModel by viewModels()
+    val authViewModel: AuthViewModel by viewModels()
     var objNote: Note? = null
     var tagsList: MutableList<String> = arrayListOf()
+    var imageUris: MutableList<Uri> = arrayListOf()
+
+    val adapter by lazy {
+        ImageListingAdapter(
+            onCancelClicked = { pos -> onRemoveImage(pos)}
+        )
+    }
+
+    private val pickMedia =
+        registerForActivityResult(PickVisualMedia()) { uri ->
+            if (uri != null) {
+                binding.progressBar.hide()
+                imageUris.add(uri)
+                adapter.updateList(imageUris)
+            } else {
+                binding.progressBar.hide()
+                toast("No Media selected!")
+            }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,51 +75,10 @@ class NoteDetailFragment : Fragment() {
 
         updateUI()
         observer()
-//        binding.button.setOnClickListener {
-//            if(validataion()) {
-//                viewModel.addNote(
-//                    Note(
-//                        id = "",
-//                        text = binding.noteMsg.text.toString(),
-//                        date = Date(),
-//                    )
-//                )
-//            }
-//        }
-//
-//        viewModel.addNote.observe(viewLifecycleOwner) { state ->
-//            when(state) {
-//                is UiState.Loading -> {
-//                    binding.btnProgressAr.show()
-//                    binding.button.text = ""
-//                }
-//
-//                is UiState.Failure -> {
-//                    binding.btnProgressAr.hide()
-//                    binding.button.text = "Create"
-//                    toast(state.error)
-//                }
-//
-//                is UiState.Success -> {
-//                    binding.btnProgressAr.hide()
-////                    toast("Note has been created successfully")
-//                    binding.button.text = "Create"
-//                    toast(state.data)
-//                }
-//            }
-//        }
-
-//        binding.button.setOnClickListener {
-//            if(isEdit){
-//                updateNote()
-//            } else {
-//                createNote()
-//            }
-//        }
     }
 
     private fun observer() {
-        viewModel.addNote.observe(viewLifecycleOwner) { state ->
+        noteViewModel.addNote.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is UiState.Loading -> {
                     binding.progressBar.show()
@@ -116,7 +101,7 @@ class NoteDetailFragment : Fragment() {
             }
         }
 
-        viewModel.updateNote.observe(viewLifecycleOwner) { state ->
+        noteViewModel.updateNote.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is UiState.Loading -> {
                     binding.progressBar.show()
@@ -137,7 +122,7 @@ class NoteDetailFragment : Fragment() {
             }
         }
 
-        viewModel.deleteNote.observe(viewLifecycleOwner) { state ->
+        noteViewModel.deleteNote.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is UiState.Loading -> {
                     binding.progressBar.show()
@@ -156,107 +141,6 @@ class NoteDetailFragment : Fragment() {
             }
         }
     }
-
-//    private fun createNote(){
-//        if(validataion()) {
-//            viewModel.addNote(
-//                Note(
-//                    id = "",
-//                    text = binding.noteMsg.text.toString(),
-//                    date = Date(),
-//                )
-//            )
-//        }
-//        viewModel.addNote.observe(viewLifecycleOwner) { state ->
-//            when(state) {
-//                is UiState.Loading -> {
-//                    binding.btnProgressAr.show()
-//                    binding.button.text = ""
-//                }
-//
-//                is UiState.Failure -> {
-//                    binding.btnProgressAr.hide()
-//                    binding.button.text = "Create"
-//                    toast(state.error)
-//                }
-//
-//                is UiState.Success -> {
-//                    binding.btnProgressAr.hide()
-////                    toast("Note has been created successfully")
-//                    binding.button.text = "Create"
-//                    toast(state.data)
-//                }
-//            }
-//        }
-//    }
-//
-//    private fun updateNote() {
-//        if(validataion()) {
-//            viewModel.updateNote(
-//                Note(
-//                    id = objNote?.id ?: "",
-//                    text = binding.noteMsg.text.toString(),
-//                    date = Date(),
-//                )
-//            )
-//        }
-//        viewModel.updateNote.observe(viewLifecycleOwner) { state ->
-//            when(state) {
-//                is UiState.Loading -> {
-//                    binding.btnProgressAr.show()
-//                    binding.button.text = ""
-//                }
-//
-//                is UiState.Failure -> {
-//                    binding.btnProgressAr.hide()
-//                    binding.button.text = "Update"
-//                    toast(state.error)
-//                }
-//
-//                is UiState.Success -> {
-//                    binding.btnProgressAr.hide()
-////                    toast("Note has been created successfully")
-//                    binding.button.text = "Update"
-//                    toast(state.data)
-//                }
-//            }
-//        }
-//    }
-
-//    private fun updateUI() {
-//        val type = arguments?.getString("type", null)
-//        type?.let { type ->
-//            when(type) {
-//                "view" -> {
-//                    isEdit = false
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//                        objNote = arguments?.getParcelable("note", Note::class.java)
-//                    } else {
-//                        @Suppress("DEPRECATION")
-//                        objNote = arguments?.getParcelable("note") as? Note
-//                    }
-////                    binding.noteMsg.isEnabled = false
-//                    binding.noteMsg.setText(objNote?.text)
-//                    binding.button.hide()
-//                }
-//                "create" -> {
-//                    isEdit = false
-//                    binding.button.setText("Create")
-//                }
-//                "edit" -> {
-//                    isEdit = true
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//                        objNote = arguments?.getParcelable("note", Note::class.java)
-//                    } else {
-//                        @Suppress("DEPRECATION")
-//                        objNote = arguments?.getParcelable("note") as? Note
-//                    }
-//                    binding.noteMsg.setText(objNote?.text)
-//                    binding.button.setText("Update")
-//                }
-//            }
-//        }
-//    }
 
     private fun updateUI(){
         val sdf = SimpleDateFormat("yyyy MMM dd . hh:mm a")
@@ -289,6 +173,18 @@ class NoteDetailFragment : Fragment() {
             isMakeEnableUI(true)
         }
 
+        binding.images.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.images.adapter = adapter
+        binding.images.itemAnimator = null
+
+        imageUris = objNote?.images?.map { it.toUri() }?.toMutableList() ?: arrayListOf()
+        adapter.updateList(imageUris)
+
+        binding.addImageLl.setOnClickListener {
+            binding.progressBar.show()
+            pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
+        }
+
         binding.back.setOnClickListener {
             findNavController().navigateUp()
         }
@@ -302,7 +198,7 @@ class NoteDetailFragment : Fragment() {
         }
 
         binding.delete.setOnClickListener {
-            objNote?.let { viewModel.deleteNote(it) }
+            objNote?.let { noteViewModel.deleteNote(it) }
         }
 
         binding.addTagLl.setOnClickListener {
@@ -317,12 +213,15 @@ class NoteDetailFragment : Fragment() {
         }
 
         binding.done.setOnClickListener {
+//            if (validataion()) {
+//                if (objNote == null) {
+//                    noteViewModel.addNote(getNote())
+//                } else {
+//                    noteViewModel.updateNote(getNote())
+//                }
+//            }
             if (validataion()) {
-                if (objNote == null) {
-                    viewModel.addNote(getNote())
-                } else {
-                    viewModel.updateNote(getNote())
-                }
+                onDonePressed()
             }
         }
 
@@ -334,6 +233,13 @@ class NoteDetailFragment : Fragment() {
         binding.description.doAfterTextChanged {
             binding.done.show()
             binding.edit.hide()
+        }
+    }
+
+    private fun onRemoveImage(pos: Int) {
+        adapter.removeItem(pos)
+        if (objNote != null) {
+            binding.edit.performClick()
         }
     }
 
@@ -393,16 +299,6 @@ class NoteDetailFragment : Fragment() {
         binding.description.isEnabled = isDisable
     }
 
-//    private fun validataion(): Boolean {
-//        var isValid = true
-//
-//        if(binding.noteMsg.text.toString().isNullOrEmpty()) {
-//            isValid = false
-//            toast("Enter message")
-//        }
-//        return isValid
-//    }
-
     private fun validataion(): Boolean {
         var isValid = true
 
@@ -425,7 +321,60 @@ class NoteDetailFragment : Fragment() {
             title = binding.title.text.toString(),
             description = binding.description.text.toString(),
             tags = tagsList,
+            images = getImageUrls(),
             date = Date()
-        )
+        ).apply { authViewModel.getSession { this.user_id = it?.id ?: "" } }
+    }
+
+    private fun getImageUrls(): List<String> {
+        if (imageUris.isNotEmpty()) {
+            // url과 content uri가 혼재되어 있기 때문에
+            // url만 저장할 수 있게...
+            val filteredUris = imageUris.filterNot { it.scheme == "content" }.map { it.toString() }
+            Log.i(TAG, "filteredUris: $filteredUris")
+            return filteredUris
+        } else {
+            return objNote?.images ?: arrayListOf()
+        }
+    }
+
+    private fun onDonePressed() {
+        if (imageUris.isNotEmpty()) {
+//            noteViewModel.onUploadSingleFile(imageUris.first()) { state ->
+            noteViewModel.onUploadMultipleFiles(imageUris) { state ->
+                when (state) {
+                    UiState.Loading -> {
+                        binding.progressBar.show()
+                    }
+                    is UiState.Failure -> {
+                        binding.progressBar.hide()
+                        toast(state.error)
+                    }
+                    is UiState.Success -> {
+                        Log.i(TAG, "uri from FB: ${state.data}")
+                        Log.i(TAG, "before imageUris: $imageUris")
+                        if (!state.data.isNullOrEmpty()) {
+                            // FB가 반환해준 업로드한 파일 url
+                            state.data.map {
+                                imageUris.add(it)
+                            }
+                        }
+
+                        binding.progressBar.hide()
+                        if (objNote == null) {
+                            noteViewModel.addNote(getNote())
+                        } else {
+                            noteViewModel.updateNote(getNote())
+                        }
+                    }
+                }
+            }
+        } else {
+            if (objNote == null) {
+                noteViewModel.addNote(getNote())
+            } else {
+                noteViewModel.updateNote(getNote())
+            }
+        }
     }
 }

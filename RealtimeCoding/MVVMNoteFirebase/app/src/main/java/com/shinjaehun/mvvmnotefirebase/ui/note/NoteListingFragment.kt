@@ -28,9 +28,6 @@ class NoteListingFragment : Fragment() {
     val noteViewModel : NoteViewModel by viewModels()
     val authViewModel : AuthViewModel by viewModels()
 
-    var deletePosition: Int = -1
-    var list: MutableList<Note> = arrayListOf()
-
     val adapter by lazy {
         NoteListingAdapter(
             onItemClicked = { pos, item ->
@@ -72,7 +69,10 @@ class NoteListingFragment : Fragment() {
             }
         }
 
-        noteViewModel.getNotes()
+        authViewModel.getSession {
+            noteViewModel.getNotes(it)
+        }
+
     }
 
     private fun observer() {
@@ -89,8 +89,7 @@ class NoteListingFragment : Fragment() {
                 }
                 is UiState.Success -> {
                     binding.progressBar.hide()
-                    list = state.data.toMutableList()
-                    adapter.updateList(list)
+                    adapter.updateList(state.data.toMutableList())
                 }
             }
         }

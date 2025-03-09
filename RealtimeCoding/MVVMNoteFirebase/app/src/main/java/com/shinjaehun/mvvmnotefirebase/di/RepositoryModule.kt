@@ -3,6 +3,7 @@ package com.shinjaehun.mvvmnotefirebase.di
 import android.content.SharedPreferences
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.StorageReference
 import com.google.gson.Gson
 import com.shinjaehun.mvvmnotefirebase.data.repository.AuthRepository
 import com.shinjaehun.mvvmnotefirebase.data.repository.AuthRepositoryImpl
@@ -21,9 +22,10 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideNoteRepository(
-        database: FirebaseFirestore
+        database: FirebaseFirestore,
+        storageReference: StorageReference
     ): NoteRepository {
-        return NoteRepositoryImpl(database)
+        return NoteRepositoryImpl(database, storageReference)
     }
 
     @Provides
