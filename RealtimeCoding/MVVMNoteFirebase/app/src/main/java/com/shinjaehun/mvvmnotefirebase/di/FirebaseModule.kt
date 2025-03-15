@@ -1,6 +1,7 @@
 package com.shinjaehun.mvvmnotefirebase.di
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -31,5 +32,11 @@ object FirebaseModule {
     @Singleton
     fun provideFirebaseStorageInstance(): StorageReference {
         return FirebaseStorage.getInstance().getReference(StorageConstants.ROOT_DIRECTORY)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseDatabaseInstance(): FirebaseDatabase {
+        return FirebaseDatabase.getInstance()
     }
 }

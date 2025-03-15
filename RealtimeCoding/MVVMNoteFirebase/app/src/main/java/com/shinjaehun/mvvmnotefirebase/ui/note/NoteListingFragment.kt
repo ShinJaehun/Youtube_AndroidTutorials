@@ -20,10 +20,12 @@ import com.shinjaehun.mvvmnotefirebase.util.toast
 import dagger.hilt.android.AndroidEntryPoint
 
 private const val TAG = "NoteListingFragment"
+private const val ARG_PARAM1 = "param1"
 
 @AndroidEntryPoint
 class NoteListingFragment : Fragment() {
 
+    var param1: String? = null
     private lateinit var binding: FragmentNoteListingBinding
     val noteViewModel : NoteViewModel by viewModels()
     val authViewModel : AuthViewModel by viewModels()
@@ -38,13 +40,23 @@ class NoteListingFragment : Fragment() {
         )
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            param1 = it.getString(ARG_PARAM1)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        binding = FragmentNoteListingBinding.inflate(inflater)
-        return binding.root
+        if (this::binding.isInitialized) {
+            return binding.root
+        } else {
+            binding = FragmentNoteListingBinding.inflate(layoutInflater)
+            return binding.root
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -55,24 +67,24 @@ class NoteListingFragment : Fragment() {
         binding.recyclerView.layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL)
         binding.recyclerView.adapter = adapter
 
-        binding.recyclerView.itemAnimator = null // delete note bug fix
+//        binding.recyclerView.itemAnimator = null // delete note bug fix
 
         binding.button.setOnClickListener {
-            findNavController().navigate(R.id.action_noteListingFragment_to_noteDetailFragment, Bundle().apply {
-                putString("type", "create")
-            })
+//            findNavController().navigate(R.id.action_noteListingFragment_to_noteDetailFragment, Bundle().apply {
+//                putString("type", "create")
+//            })
+            findNavController().navigate(R.id.action_noteListingFragment_to_noteDetailFragment)
         }
 
-        binding.logout.setOnClickListener {
-            authViewModel.logout {
-                findNavController().navigate(R.id.action_noteListingFragment_to_loginFragment)
-            }
-        }
+//        binding.logout.setOnClickListener {
+//            authViewModel.logout {
+//                findNavController().navigate(R.id.action_noteListingFragment_to_loginFragment)
+//            }
+//        }
 
         authViewModel.getSession {
             noteViewModel.getNotes(it)
         }
-
     }
 
     private fun observer() {
@@ -80,7 +92,6 @@ class NoteListingFragment : Fragment() {
 
             when(state) {
                 is UiState.Loading -> {
-
                     binding.progressBar.show()
                 }
                 is UiState.Failure -> {
@@ -93,5 +104,14 @@ class NoteListingFragment : Fragment() {
                 }
             }
         }
+    }
+
+    companion object {
+        fun newInstance(param1: String) =
+            NoteListingFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_PARAM1, param1)
+                }
+            }
     }
 }
