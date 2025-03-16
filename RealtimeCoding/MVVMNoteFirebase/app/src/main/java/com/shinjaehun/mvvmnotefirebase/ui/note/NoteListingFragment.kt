@@ -67,7 +67,7 @@ class NoteListingFragment : Fragment() {
         binding.recyclerView.layoutManager = StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL)
         binding.recyclerView.adapter = adapter
 
-//        binding.recyclerView.itemAnimator = null // delete note bug fix
+        binding.recyclerView.itemAnimator = null // delete note bug fix
 
         binding.button.setOnClickListener {
 //            findNavController().navigate(R.id.action_noteListingFragment_to_noteDetailFragment, Bundle().apply {

@@ -22,5 +22,5 @@ data class Note (
     val tags: MutableList<String> = arrayListOf(),
     val images: List<String> = arrayListOf(),
     @ServerTimestamp
-    val date: Date = Date()
+    val date: Date = Date(),
 ): Parcelable
