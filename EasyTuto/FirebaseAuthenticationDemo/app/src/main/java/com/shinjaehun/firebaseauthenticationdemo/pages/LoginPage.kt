@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.shinjaehun.firebaseauthenticationdemo.AuthState
 import com.shinjaehun.firebaseauthenticationdemo.AuthViewModel
@@ -39,13 +40,23 @@ fun LoginPage(
         mutableStateOf("")
     }
 
-    val authState = authViewModel.authState.observeAsState()
+//    val authState = authViewModel.authState.observeAsState()
+    val authState by authViewModel.authState.collectAsStateWithLifecycle()
+
     val context = LocalContext.current
 
-    LaunchedEffect(authState.value) {
-        when(authState.value) {
+//    LaunchedEffect(authState.value) {
+//        when(authState.value) {
+//            is AuthState.Authenticated -> navController.navigate("home")
+//            is AuthState.Error -> Toast.makeText(context, (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+//            else -> Unit
+//        }
+//    }
+
+    LaunchedEffect(authState) {
+        when(authState) {
             is AuthState.Authenticated -> navController.navigate("home")
-            is AuthState.Error -> Toast.makeText(context, (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
+            is AuthState.Error -> Toast.makeText(context, (authState as AuthState.Error).message, Toast.LENGTH_SHORT).show()
             else -> Unit
         }
     }
@@ -81,7 +92,8 @@ fun LoginPage(
             onClick = {
                 authViewModel.login(email, password)
             },
-            enabled = authState.value != AuthState.Loading
+//            enabled = authState.value != AuthState.Loading
+            enabled = authState != AuthState.Loading
         ) {
             Text(text="Login")
         }
