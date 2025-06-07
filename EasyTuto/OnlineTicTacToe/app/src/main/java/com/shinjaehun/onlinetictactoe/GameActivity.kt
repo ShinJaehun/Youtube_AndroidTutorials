@@ -1,6 +1,7 @@
 package com.shinjaehun.onlinetictactoe
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -13,8 +14,9 @@ private const val TAG = "GameActivity"
 class GameActivity : AppCompatActivity(), View.OnClickListener {
 
     lateinit var binding: ActivityGameBinding
-//    private var gameModel: GameModel? = null
     val viewModel: GameViewModel by viewModels()
+    private lateinit var gameId: String
+    private lateinit var player: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,14 +38,18 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
             startGame()
         }
 
+        gameId = intent.getStringExtra("id").toString()
+        if (gameId != "-1") {
+            viewModel.fetchGameModel(gameId)
+        }
+
+        player = intent.getStringExtra("player").toString()
+
         viewModel.gameModel.observe(this) {
+//            Log.i(TAG, "in gameactivity $it")
             setUI(it)
         }
 
-//        GameData.gameModel.observe(this) {
-//            gameModel = it
-//            setUI(it)
-//        }
     }
 
     private fun setUI(gameModel: GameModel) {
@@ -71,10 +77,20 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
                     }
                     GameStatus.PROGRESS -> {
                         binding.startGameBtn.visibility = View.INVISIBLE
-                        gameModel.currentPlayer + " turn"
+//                        gameModel.currentPlayer + " turn"
+                        when(player) {
+                            gameModel.currentPlayer -> "Your turn"
+                            else -> gameModel.currentPlayer + " turn"
+                        }
                     }
                     GameStatus.FINISHED -> {
-                        if (gameModel.winner.isNotEmpty()) gameModel.winner + " Won"
+//                        if (gameModel.winner.isNotEmpty()) gameModel.winner + " Won"
+                        if (gameModel.winner.isNotEmpty()) {
+                            when (player) {
+                                gameModel.winner -> "You won"
+                                else -> gameModel.winner + " won"
+                            }
+                        }
                         else "Draw"
                     }
                 }
@@ -83,7 +99,7 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
     private fun startGame() {
         updateGameData(
             GameModel(
-//                gameId = viewModel.gameModel.value.gameId,
+                gameId = gameId,
                 gameStatus = GameStatus.PROGRESS
             )
         )
@@ -118,50 +134,22 @@ class GameActivity : AppCompatActivity(), View.OnClickListener {
         if(gameModel.fieldPos.none(){ it.isEmpty() }) {
             gameModel.gameStatus = GameStatus.FINISHED
         }
-//        updateGameData(gameModel)
-
-//        viewModel.gameModel?.apply {
-////            Log.i(TAG, "fieldPos: " + fieldPos)
-//            for(i in winningPos) {
-//                if(
-//                    fieldPos[i[0]] == fieldPos[i[1]] &&
-//                    fieldPos[i[1]] == fieldPos[i[2]] &&
-//                    fieldPos[i[0]].isNotEmpty()
-//                ) {
-////                    Log.i(TAG, "fieldPos[i[0]]: " + fieldPos[i[0]])
-////                    Log.i(TAG, "fieldPos[i[1]]: " + fieldPos[i[1]])
-////                    Log.i(TAG, "fieldPos[i[2]]: " + fieldPos[i[2]])
-//                    gameStatus = GameStatus.FINISHED
-//                    winner = fieldPos[i[0]]
-//                }
-//            }
-//            if(fieldPos.none(){ it.isEmpty() }){
-//                gameStatus = GameStatus.FINISHED
-//            }
-//            updateGameData(this)
-//        }
     }
 
     override fun onClick(v: View?) {
-//        gameModel?.apply {
-//            if(gameStatus!=GameStatus.PROGRESS) {
-//                Toast.makeText(applicationContext, "Game not started", Toast.LENGTH_SHORT).show()
-//                return
-//            }
-//            val clickedPos = (v?.tag as String).toInt()
-//            if(fieldPos[clickedPos].isEmpty()) {
-//                fieldPos[clickedPos] = currentPlayer
-//                currentPlayer = if(currentPlayer == "X") "O" else "X"
-//                checkForWinner()
-//                updateGameData(this)
-//            }
-//        }
         val gameModel = viewModel.gameModel.value
 
         if(gameModel?.gameStatus != GameStatus.PROGRESS) {
             Toast.makeText(applicationContext, "Game not started", Toast.LENGTH_SHORT).show()
             return
         }
+
+        if (gameModel.gameId!="-1"&&gameModel.currentPlayer!=player){
+            Toast.makeText(applicationContext, "Not your turn", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+
         val clickedPos = (v?.tag as String).toInt()
         if(gameModel.fieldPos[clickedPos].isEmpty()) {
             gameModel.fieldPos[clickedPos] = gameModel.currentPlayer
