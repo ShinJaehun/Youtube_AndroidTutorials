@@ -1,63 +1,172 @@
 package com.shinjaehun.quizzyapp.views
 
+import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.shinjaehun.quizzyapp.R
+import com.shinjaehun.quizzyapp.databinding.FragmentQuizBinding
+import com.shinjaehun.quizzyapp.model.QuestionModel
+import com.shinjaehun.quizzyapp.util.UiState
+import com.shinjaehun.quizzyapp.util.hide
+import com.shinjaehun.quizzyapp.util.show
+import com.shinjaehun.quizzyapp.util.toast
+import com.shinjaehun.quizzyapp.viewmodel.QuizListViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [QuizFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+private const val TAG = "QuizFragment"
 
 @AndroidEntryPoint
 class QuizFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    lateinit var binding: FragmentQuizBinding
+    val quizListViewModel: QuizListViewModel by viewModels()
+
+    var questions: List<QuestionModel> = arrayListOf()
+    private var currentQuestionNumber: Int = 0
+    var answer: String? = ""
+    lateinit var job: Job
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_quiz, container, false)
+        binding = FragmentQuizBinding.inflate(layoutInflater)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment QuizFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            QuizFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val quizId = arguments?.getString("quiz_id")
+        Log.i(TAG, "quizId: $quizId")
+        observer()
+        if (quizId!=null){
+            quizListViewModel.getQuestions(quizId)
+        }
+
+        binding.option1Btn.setOnClickListener {
+            binding.option2Btn.isClickable = false
+            binding.option3Btn.isClickable = false
+            verifyAnswer(it as Button)
+        }
+        binding.option2Btn.setOnClickListener {
+            binding.option1Btn.isClickable = false
+            binding.option3Btn.isClickable = false
+            verifyAnswer(it as Button)
+        }
+        binding.option3Btn.setOnClickListener {
+            binding.option1Btn.isClickable = false
+            binding.option2Btn.isClickable = false
+            verifyAnswer(it as Button)
+        }
+
+        binding.closeQuizBtn.setOnClickListener {
+            findNavController().navigate(R.id.action_quizFragment_to_listFragment)
+        }
+    }
+
+    private fun observer() {
+        quizListViewModel.questions.observe(viewLifecycleOwner){ state ->
+            when(state){
+                is UiState.Failure -> {
+                    toast(state.error)
+                }
+                is UiState.Success -> {
+                    questions = state.data
+                    Log.i(TAG, "questions: $questions")
+                    loadQuestions(currentQuestionNumber)
+                }
+                else -> {
+                    Log.i(TAG, "what??? : ${state}")
                 }
             }
+        }
     }
+
+    private fun loadQuestions(i: Int) {
+        Log.i(TAG, "currentQuestionNumber $i")
+        binding.quizCoutProgressBar.show()
+
+        binding.option1Btn.isClickable = true
+        binding.option2Btn.isClickable = true
+        binding.option3Btn.isClickable = true
+
+        binding.option1Btn.setBackgroundResource(R.drawable.button_bg)
+        binding.option2Btn.setBackgroundResource(R.drawable.button_bg)
+        binding.option3Btn.setBackgroundResource(R.drawable.button_bg)
+
+        binding.nextQueBtn.hide()
+
+        val currentQuestion = questions[i]
+        Log.i(TAG, "currentQuestion: $currentQuestion")
+        binding.quizQuestionTv.text = currentQuestion.question
+        binding.option1Btn.text = currentQuestion.option_a
+        binding.option2Btn.text = currentQuestion.option_b
+        binding.option3Btn.text = currentQuestion.option_c
+        binding.countTimeQuiz.text = currentQuestion.timer.toString()
+        binding.quizQuestionsCount.text = "$i / ${questions.size}"
+
+        answer = currentQuestion.answer
+
+        job = lifecycleScope.launch {
+            startTimer(currentQuestion.timer).collect { remaining ->
+                binding.countTimeQuiz.text = remaining.toString()
+                val percent = remaining.toDouble() / currentQuestion.timer.toDouble() * 100
+//                Log.i(TAG, "remaining : $remaining")
+//                Log.i(TAG, "currentQuestion.timer : ${currentQuestion.timer}")
+//                Log.i(TAG, "percent : $percent")
+                binding.quizCoutProgressBar.setProgress(percent.toInt())
+            }
+            binding.ansFeedbackTv.text = "Times Up! No answer selected..."
+        }
+    }
+
+    private fun startTimer(durationSeconds: Int): Flow<Int> = flow {
+        var remainingSeconds = durationSeconds
+        while(remainingSeconds > 0){
+            emit(remainingSeconds)
+            delay(1000)
+            remainingSeconds--
+        }
+        emit(0)
+    }
+
+    private fun verifyAnswer(button: Button) {
+        if(answer!!.equals(button.text)) {
+//            button.setBackground(ContextCompat.getDrawable(context, R.color.green))
+            button.setBackgroundResource(R.drawable.button_bg_correct)
+            binding.ansFeedbackTv.text = "Correct Answer"
+        } else {
+            button.setBackgroundResource(R.drawable.button_bg_wrong)
+            binding.ansFeedbackTv.text = "Wrong Answer"
+        }
+
+        clearAll()
+
+    }
+
+    private fun clearAll() {
+        job.cancel()
+        binding.nextQueBtn.show()
+        currentQuestionNumber++
+        binding.nextQueBtn.setOnClickListener {
+            loadQuestions(currentQuestionNumber)
+        }
+    }
+
+
 }

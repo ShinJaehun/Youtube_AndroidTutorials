@@ -52,20 +52,20 @@
         android:label="fragment_detail"
         tools:layout="@layout/fragment_detail" >
         <action
-            android:id="@+id/action_detailFragment_to_quizragment"
-            app:destination="@id/quizragment" />
+            android:id="@+id/action_detailFragment_to_quizFragment"
+            app:destination="@id/quizFragment" />
         <argument
             android:name="position"
             app:argType="integer"
             android:defaultValue="0" />
     </fragment>
     <fragment
-        android:id="@+id/quizragment"
+        android:id="@+id/quizFragment"
         android:name="com.shinjaehun.quizzyapp.views.QuizFragment"
         android:label="fragment_quiz"
         tools:layout="@layout/fragment_quiz" >
         <action
-            android:id="@+id/action_quizragment_to_resultFragment"
+            android:id="@+id/action_quizFragment_to_resultFragment"
             app:destination="@id/resultFragment" />
         <argument
             android:name="quizId"
@@ -76,7 +76,7 @@
             app:argType="long"
             android:defaultValue="0L" />
         <action
-            android:id="@+id/action_quizragment_to_listFragment"
+            android:id="@+id/action_quizFragment_to_listFragment"
             app:destination="@id/listFragment" />
     </fragment>
     <fragment
