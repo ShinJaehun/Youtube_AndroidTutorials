@@ -1,6 +1,7 @@
 package com.shinjaehun.quizzyapp.repository
 
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 import com.shinjaehun.quizzyapp.model.QuestionModel
@@ -10,6 +11,7 @@ import com.shinjaehun.quizzyapp.util.UiState
 private const val TAG = "QuizListRepositoryImpl"
 
 class QuizListRepositoryImpl(
+    private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore
 ): QuizListRepository {
     override fun getQuizLists(result: (UiState<List<QuizListModel>>) -> Unit) {
@@ -35,7 +37,8 @@ class QuizListRepositoryImpl(
     }
 
     override fun getQuestions(quizId: String, result: (UiState<List<QuestionModel>>) -> Unit) {
-        firestore.collection("quizzyapp_quiz").document(quizId).collection("questions")
+        firestore.collection("quizzyapp_quiz").document(quizId)
+            .collection("questions")
             .get()
             .addOnCompleteListener {
                 if(it.isSuccessful){
@@ -51,6 +54,32 @@ class QuizListRepositoryImpl(
             }
             .addOnFailureListener {
                 result.invoke(UiState.Failure(it.message.toString()))
+            }
+    }
+
+    override fun putResults(
+        quizId: String,
+        resultMap: HashMap<String, Int>,
+        result: (UiState<Pair<HashMap<String, Int>, String>>) -> Unit
+    ) {
+        firestore.collection("quizzyapp_quiz").document(quizId)
+            .collection("results").document(auth.currentUser!!.uid + "_" + System.currentTimeMillis().toString())
+            .set(resultMap)
+            .addOnCompleteListener {
+                if(it.isSuccessful) {
+                    result.invoke(
+                        UiState.Success(Pair(resultMap, "results has been successfully pushed"))
+                    )
+                } else {
+                    result.invoke(
+                        UiState.Failure(it.exception?.message.toString())
+                    )
+                }
+            }
+            .addOnFailureListener {
+                result.invoke(
+                    UiState.Failure(it.message.toString())
+                )
             }
     }
 }

@@ -36,9 +36,14 @@ class QuizFragment : Fragment() {
     val quizListViewModel: QuizListViewModel by viewModels()
 
     var questions: List<QuestionModel> = arrayListOf()
+    private lateinit var quizId: String
     private var currentQuestionNumber: Int = 0
+    private var correctAnswer: Int = 0
+    private var wrongAnswer: Int = 0
     var answer: String? = ""
     lateinit var job: Job
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,7 +56,7 @@ class QuizFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val quizId = arguments?.getString("quiz_id")
+        quizId = arguments?.getString("quiz_id")!!
         Log.i(TAG, "quizId: $quizId")
         observer()
         if (quizId!=null){
@@ -95,21 +100,33 @@ class QuizFragment : Fragment() {
                 }
             }
         }
+
+        quizListViewModel.results.observe(viewLifecycleOwner) { state ->
+            when(state) {
+                is UiState.Failure -> {
+                    // 결과 upload 실패
+                    toast(state.error)
+                    Log.i(TAG, "헐 업로드 실패 : ${state.error}")
+                }
+                is UiState.Success -> {
+                    // 여기서 navigation으로 넘어가야 함
+                    Log.i(TAG, "일단 업로드 성공 : ${state.data.second}")
+                    findNavController().navigate(R.id.action_quizFragment_to_resultFragment, Bundle().apply {
+                        putString("correct_answer", correctAnswer.toString())
+                        putString("wrong_answer", wrongAnswer.toString())
+                    })
+                }
+                else -> {
+                    Log.i(TAG, "what??? : ${state}")
+                }
+            }
+        }
     }
 
     private fun loadQuestions(i: Int) {
         Log.i(TAG, "currentQuestionNumber $i")
-        binding.quizCoutProgressBar.show()
 
-        binding.option1Btn.isClickable = true
-        binding.option2Btn.isClickable = true
-        binding.option3Btn.isClickable = true
-
-        binding.option1Btn.setBackgroundResource(R.drawable.button_bg)
-        binding.option2Btn.setBackgroundResource(R.drawable.button_bg)
-        binding.option3Btn.setBackgroundResource(R.drawable.button_bg)
-
-        binding.nextQueBtn.hide()
+        resetOptions()
 
         val currentQuestion = questions[i]
         Log.i(TAG, "currentQuestion: $currentQuestion")
@@ -118,10 +135,11 @@ class QuizFragment : Fragment() {
         binding.option2Btn.text = currentQuestion.option_b
         binding.option3Btn.text = currentQuestion.option_c
         binding.countTimeQuiz.text = currentQuestion.timer.toString()
-        binding.quizQuestionsCount.text = "$i / ${questions.size}"
+        binding.quizQuestionsCount.text = "${i+1} / ${questions.size}"
 
         answer = currentQuestion.answer
 
+        binding.quizCoutProgressBar.show()
         job = lifecycleScope.launch {
             startTimer(currentQuestion.timer).collect { remaining ->
                 binding.countTimeQuiz.text = remaining.toString()
@@ -131,8 +149,27 @@ class QuizFragment : Fragment() {
 //                Log.i(TAG, "percent : $percent")
                 binding.quizCoutProgressBar.setProgress(percent.toInt())
             }
+            wrongAnswer++
+
+            binding.option1Btn.isClickable = false
+            binding.option2Btn.isClickable = false
+            binding.option3Btn.isClickable = false
+
             binding.ansFeedbackTv.text = "Times Up! No answer selected..."
+            clearAll()
         }
+    }
+
+    private fun resetOptions() {
+        binding.option1Btn.isClickable = true
+        binding.option2Btn.isClickable = true
+        binding.option3Btn.isClickable = true
+
+        binding.option1Btn.setBackgroundResource(R.drawable.button_bg)
+        binding.option2Btn.setBackgroundResource(R.drawable.button_bg)
+        binding.option3Btn.setBackgroundResource(R.drawable.button_bg)
+
+        binding.nextQueBtn.hide()
     }
 
     private fun startTimer(durationSeconds: Int): Flow<Int> = flow {
@@ -148,9 +185,11 @@ class QuizFragment : Fragment() {
     private fun verifyAnswer(button: Button) {
         if(answer!!.equals(button.text)) {
 //            button.setBackground(ContextCompat.getDrawable(context, R.color.green))
+            correctAnswer++
             button.setBackgroundResource(R.drawable.button_bg_correct)
             binding.ansFeedbackTv.text = "Correct Answer"
         } else {
+            wrongAnswer++
             button.setBackgroundResource(R.drawable.button_bg_wrong)
             binding.ansFeedbackTv.text = "Wrong Answer"
         }
@@ -164,9 +203,20 @@ class QuizFragment : Fragment() {
         binding.nextQueBtn.show()
         currentQuestionNumber++
         binding.nextQueBtn.setOnClickListener {
-            loadQuestions(currentQuestionNumber)
+            if(currentQuestionNumber == questions.size) {
+                toast("quiz has been finished!")
+                submitResults()
+            } else {
+                loadQuestions(currentQuestionNumber)
+            }
         }
     }
 
+    private fun submitResults() {
+        val resultMap = HashMap<String, Int>()
+        resultMap.put("correct", correctAnswer)
+        resultMap.put("wrong", wrongAnswer)
 
+        quizListViewModel.putResults(quizId, resultMap) //근데 이 결과를 FB에 저장하는 게 무슨 의미가 있는지 잘 모르겠음...
+    }
 }

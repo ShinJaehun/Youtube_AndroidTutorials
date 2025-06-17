@@ -21,6 +21,9 @@ class QuizListViewModel @Inject constructor(
     private val _questions = MutableLiveData<UiState<List<QuestionModel>>>()
     val questions : LiveData<UiState<List<QuestionModel>>> = _questions
 
+    private val _results = MutableLiveData<UiState<Pair<HashMap<String, Int>, String>>>()
+    val results : LiveData<UiState<Pair<HashMap<String, Int>, String>>> = _results
+
     fun getQuizLists() {
         _quizLists.value = UiState.Loading
         repository.getQuizLists {
@@ -32,6 +35,13 @@ class QuizListViewModel @Inject constructor(
         _questions.value = UiState.Loading
         repository.getQuestions(quizId) {
             _questions.value = it
+        }
+    }
+
+    fun putResults(quizId: String, resultMap: HashMap<String, Int>) {
+        _results.value = UiState.Loading
+        repository.putResults(quizId, resultMap) {
+            _results.value = it
         }
     }
 }

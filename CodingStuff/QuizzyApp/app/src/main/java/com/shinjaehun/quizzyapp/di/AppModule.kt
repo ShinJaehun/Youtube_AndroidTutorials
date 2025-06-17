@@ -39,8 +39,9 @@ object AppModule {
     @Provides
     @Singleton
     fun provideQuizListRepository(
+        auth: FirebaseAuth,
         firestore: FirebaseFirestore
     ): QuizListRepository {
-        return QuizListRepositoryImpl(firestore)
+        return QuizListRepositoryImpl(auth, firestore)
     }
 }
